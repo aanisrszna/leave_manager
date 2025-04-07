@@ -1,0 +1,56 @@
+<?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use Dotenv\Dotenv;
+
+require 'vendor/autoload.php'; // Adjust the path as necessary
+
+function send_email($to, $subject, $message) {
+    // Load environment variables
+    $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->load();
+
+    // Retrieve environment variables
+    $smtpHost = getenv('SMTP_HOST');
+    $smtpUser = getenv('SMTP_USER');
+    $smtpPass = getenv('SMTP_PASS');
+    $smtpSecure = getenv('SMTP_SECURE');
+    $smtpPort = getenv('SMTP_PORT');
+
+    // Debug: Output the retrieved environment variables
+    echo "SMTP_HOST: $smtpHost\n";
+    echo "SMTP_USER: $smtpUser\n";
+    echo "SMTP_PASS: $smtpPass\n";
+    echo "SMTP_SECURE: $smtpSecure\n";
+    echo "SMTP_PORT: $smtpPort\n";
+
+    $mail = new PHPMailer(true);
+    try {
+        // SMTP Configuration
+        $mail->isSMTP();
+        $mail->Host       = $smtpHost;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $smtpUser;
+        $mail->Password   = $smtpPass;
+        $mail->SMTPSecure = $smtpSecure;
+        $mail->Port       = $smtpPort;
+
+        // Sender & Recipient
+        $mail->setFrom($smtpUser, 'River Raven Leave System');
+        $mail->addAddress($to);
+
+        // Email Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $message;
+
+        $mail->send();
+        return "Email sent successfully to $to";
+    } catch (Exception $e) {
+        return "Email failed: " . $mail->ErrorInfo;
+    }
+}
+
+// Example usage
+echo send_email('recipient@example.com', 'Test Subject', 'Test Message');
+?>
