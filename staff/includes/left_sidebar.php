@@ -25,7 +25,7 @@
 						<ul class="submenu">
 							<li><a href="apply_leaves.php">Apply Leave</a></li>
 							
-							<li><a href="leave_history.php">Leave Application History</a></li>
+							<li><a href="leave_history.php">My Leave</a></li>
 						</ul>
 					</li>
 					<!-- <li class="dropdown">

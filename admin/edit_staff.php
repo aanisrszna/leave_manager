@@ -334,7 +334,7 @@ if (isset($_POST['update_staff'])) {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4 col-sm-12">
+                                <div class="col-md-6 col-sm-12">
                                     <div class="form-group">
                                         <label>New Password (Leave blank to keep current password):</label>
                                         <input name="Password" type="password" class="form-control wizard-required" autocomplete="off" placeholder="Enter new password (optional)">
@@ -356,4 +356,3 @@ if (isset($_POST['update_staff'])) {
 
 
 <?php include('includes/footer.php');?>
-<?php include('scripts.php'); ?>

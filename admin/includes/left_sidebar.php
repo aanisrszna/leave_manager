@@ -60,7 +60,7 @@
 						<ul class="submenu">
 							<!-- <li><a href="apply_leaves.php">Apply Leave</a></li> -->
 							<li><a href="admin_leave_form.php">Apply Leave Staff</a></li>
-							<li><a href="leave_history.php">My Leave</a></li>
+							<!-- <li><a href="leave_history.php">My Leave</a></li> -->
 							<li><a href="leaves.php">All Leave</a></li>
 							
 							<!-- <li><a href="rejected_leave.php">Rejected Leave</a></li> -->
