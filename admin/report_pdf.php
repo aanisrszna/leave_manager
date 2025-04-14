@@ -1,178 +1,142 @@
 <?php
-	include('../includes/session.php');
-	include('../includes/config.php');
-	require_once('../TCPDF-main/tcpdf.php');
+include('../includes/session.php');
+include('../includes/config.php');
+require_once('../TCPDF-main/tcpdf.php');
 
-	$did=intval($_GET['leave_id']);
-	$sql = "SELECT tblleave.id as lid,tblemployees.FirstName,tblemployees.emp_id,tblemployees.Gender,tblemployees.Phonenumber,tblemployees.EmailId,tblemployees.Av_leave,tblemployees.Position_Staff,tblemployees.Staff_ID,tblleave.LeaveType,tblleave.ToDate,tblleave.FromDate,tblleave.PostingDate,tblleave.RequestedDays,tblleave.DaysOutstand,tblleave.Sign,tblleave.WorkCovered,tblleave.HodRemarks,tblleave.RegRemarks,tblleave.HodSign,tblleave.RegSign,tblleave.HodDate,tblleave.RegDate,tblleave.num_days from tblleave join tblemployees on tblleave.empid=tblemployees.emp_id where tblleave.id='$did'";
-	$query = mysqli_query($conn, $sql) or die(mysqli_error());
-	while ($row = mysqli_fetch_array($query)) {
-		$firstname = $row['FirstName'];
-		$position = $row['Position_Staff']; 
-	    $staff_id = $row['Staff_ID'];
-		// $previous = $row['PreviouDays'];
-		// $leave_entitled = $row['LeaveEntitled'];
-		// $cumulative_leave = $row['RequestedDays'];
-		$num_days = $row['num_days'];
-		$outstanding = $row['DaysOutstand'];
-		$start_date = $row['FromDate'];
-		$end_date = $row['ToDate'];
-		$staff_signature = $row['Sign'];
-		$posted = $row['PostingDate'];
-		$hod_sign = $row['HodSign'];
-		$hod_date = $row['HodDate'];
-		$reg_sign = $row['RegSign'];
-		$reg_date = $row['RegDate'];
-		$work_cover = $row['WorkCovered'];
-		$date_resume = $row['ToDate'];
-	}
+$did = intval($_GET['leave_id']);
+$sql = "SELECT tblemployees.FirstName, tblemployees.Staff_ID, tblemployees.Position_Staff, tblemployees.Phonenumber, tblemployees.EmailId, 
+               tblleave.LeaveType, tblleave.RequestedDays, tblleave.DaysOutstand, tblleave.PostingDate, tblleave.FromDate, tblleave.ToDate, 
+               tblleave.HodRemarks, tblleave.RegRemarks, tblleave.HodSign, tblleave.RegSign, tblleave.HodDate, tblleave.RegDate, tblleave.proof
+        FROM tblleave 
+        JOIN tblemployees ON tblleave.empid = tblemployees.emp_id 
+        WHERE tblleave.id = '$did'";
+$query = mysqli_query($conn, $sql) or die(mysqli_error());
+$row = mysqli_fetch_array($query);
 
-	/**
-	 * summary
-	 */
-	class PDF extends TCPDF
-	{
-	    public function Header()
-	    {
-	    	$this->Ln(5);
-	    	$this->SetFont('helvetica','B', 14);
-	    	$this->Cell(189, 5, 'Codelytical Institute of Programming', 0, 1, 'C');
-	    	$this->SetFont('helvetica','B', 14);
-	    	$this->Ln(2);
-	    	$this->Cell(189, 3, 'P.O. Box 1, Youtube', 0, 1, 'C');
-	    	$this->SetFont('helvetica','B', 14);
-	    	$this->Ln(2);
-	    	$this->Cell(189, 3, 'LEAVE APPLICATION FORM', 0, 1, 'C');
-	    }
+// Extract values from the query
+$fullname = $row['FirstName'];
+$staff_position = $row['Position_Staff'];
+$staff_id = $row['Staff_ID'];
+$phone_number = $row['Phonenumber'];
+$leave_type = $row['LeaveType'];
+$requested_days = $row['RequestedDays'];
+$applied_date = date('d F Y', strtotime($row['PostingDate']));
+$leave_start = date('d-M-Y', strtotime($row['FromDate']));
+$leave_end = date('d-M-Y', strtotime($row['ToDate']));
+$hod_remarks = ($row['HodRemarks'] == 1) ? 'Approved' : (($row['HodRemarks'] == 2) ? 'Rejected' : 'Pending');
+$reg_remarks = ($row['RegRemarks'] == 1) ? 'Approved' : (($row['RegRemarks'] == 2) ? 'Rejected' : 'Pending');
+$hod_sign = !empty($row['HodSign']) ? '../signature/' . $row['HodSign'] : 'No Signature';
+$reg_sign = !empty($row['RegSign']) ? '../signature/' . $row['RegSign'] : 'No Signature';
 
-	    public function Body()
-	    {
+$hod_date = !empty($row['HodDate']) ? date('d-M-Y', strtotime($row['HodDate'])) : '';
+$reg_date = !empty($row['RegDate']) ? date('d-M-Y', strtotime($row['RegDate'])) : '';
 
-	    }
-	}
+$proof_picture = '../proof/' . $row['proof'];
 
-	// create new PDF document
-	$pdf = new PDF('p', 'mm', 'A4', true, 'UTF-8', false);
+// Define custom PDF class
+class MYPDF extends TCPDF {
+    private $fullname;
+    private $staff_position;
 
-	// set document information
-	$pdf->SetCreator(PDF_CREATOR);
-	$pdf->SetAuthor('ACI Leave System');
-	$pdf->SetTitle('ACI Leave System');
-	$pdf->SetSubject('');
-	$pdf->SetKeywords('');
+    public function __construct($fullname, $staff_position) {
+        parent::__construct();
+        $this->fullname = $fullname;
+        $this->staff_position = $staff_position;
+    }
 
-	// set default header data
-	$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 001', PDF_HEADER_STRING, array(0,64,255), array(0,64,128));
-	$pdf->setFooterData(array(0,64,0), array(0,64,128));
+    public function Header() {
+        $this->Image('../vendors/images/riverraven.png', 160, 10, 30);
+        $this->Cell(0, 10, '', 0, 10, 'L');
+        
+        $this->SetFont('helvetica', 'B', 14);
+        $this->Cell(0, 10, 'Leave Application Form', 0, 10, 'L');
+        $this->SetFont('helvetica', 'I', 10);
+        $this->Cell(0, 5, '(This form must be COMPLETED with all details before submission)', 0, 10, 'L');
+        $this->Cell(0, 5, '(All form must be submitted 4 days before going on leave on the said date.)', 0, 10, 'L');
+        $this->Cell(0, 5, '(Please attach medical certificates for sick leave.)', 0, 10, 'L');
 
-	// set header and footer fonts
-	$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-	$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+        $this->Ln(5);
+        
+        $this->SetFont('helvetica', '', 12);
+        $this->Cell(0, 10, "Full Name: " . $this->fullname, 0, 1, 'L');
+        $this->Cell(0, 5, "Position: " . $this->staff_position, 0, 1, 'L');
+        $this->Ln(5);
+    }
 
-	// set default monospaced font
-	$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    public function Footer() {
+        $this->SetY(-15);
+        $this->SetFont('helvetica', 'I', 8);
+        $this->Cell(0, 10, 'Page ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, 0, 'C');
+    }
+}
 
-	// set margins
-	$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+// Pass the variables when creating the PDF object
+$pdf = new MYPDF($fullname, $staff_position);
+$pdf->SetMargins(15, 27, 15);
+$pdf->SetAutoPageBreak(TRUE, 25);
+$pdf->AddPage();
+$pdf->SetFont('helvetica', '', 12);
 
-	// set auto page breaks
-	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+$html = ''; // Initialize $html
 
-	// set image scale factor
-	$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+$html .= <<<EOD
+<!-- Leave Details -->
+<br><br><br><br><br><br><br><br>
+<table cellspacing="0" cellpadding="5" border="1">
+    <tr><td><b>Leave Start Date</b></td><td>$leave_start</td></tr>
+    <tr><td><b>Leave End Date</b></td><td>$leave_end</td></tr>
+    <tr><td><b>No. of Days</b></td><td>$requested_days</td></tr>
+    <tr><td><b>Leave Type</b></td><td>$leave_type</td></tr>
+</table>
 
-	// set some language-dependent strings (optional)
-	if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
-	    require_once(dirname(__FILE__).'/lang/eng.php');
-	    $pdf->setLanguageArray($l);
-	}
+<p>In case of emergency, I can be reached at: <b>$phone_number</b></p>
+<br>
+<!-- Approvals Section -->
+<table cellspacing="0" cellpadding="5" border="1" style="width:100%;">
+    <tr>
+        <td colspan="4" style="background-color:#D3D3D3; font-weight:bold; text-align:center;">Approvals</td>
+    </tr>
+    <tr>
+        <td colspan="2"><b>Head of Department </b></td>
+        <td colspan="2"><b>Director </b></td>
+    </tr>
+    <tr>
+        <td colspan="2" style="height:50px; text-align:center;">
+            <img src="$hod_sign" width="100" height="30" alt="No Signature">
+        </td>
+        <td colspan="2" style="height:50px; text-align:center;">
+            <img src="$reg_sign" width="100" height="30" alt="No Signature">
+        </td>
+    </tr>
+    <tr>
+        <td><b>Date</b></td>
+        <td style="height:25px;">$hod_date</td>
+        <td><b>Date</b></td>
+        <td style="height:25px;">$reg_date</td>
+    </tr>
 
-	// set default font subsetting mode
-	$pdf->setFontSubsetting(true);
+    <tr>
+        <td colspan="2">$hod_remarks</td>
 
-	// Set font
-	// dejavusans is a UTF-8 Unicode font, if you only need to
-	// print standard ASCII chars, you can use core fonts like
-	// helvetica or times to reduce file size.
-	$pdf->SetFont('dejavusans', '', 14, '', true);
+        <td colspan="2">$reg_remarks</td>
 
-	// Add a page
-	// This method has several options, check the source code documentation for more information.
-	$pdf->AddPage();
+    </tr>
+</table>
+<br><br>
+<h3>Proof Picture</h3>
+EOD;
 
-	$pdf->Ln(20);
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(189, 6, '1.          Full Name:    '.$firstname.' '.$lastname.'', 0, 1);
+$pdf->writeHTML($html, true, false, true, false, '');
 
-	$pdf->Ln(8);
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(130, 6, '2.          Position:    '.$position.' ', 0, 0);
-	$pdf->Cell(59, 6, '   Staff ID Number:    '.$staff_id.' ', 0, 1);
+if (!empty($proof_picture)) {
+    $pdf->Image($proof_picture, 15, $pdf->GetY(), 100, 60, '', '', 'T', true, 300, '', false, false, 1, false, false, false);
+} else {
+    $pdf->SetFont('helvetica', 'B', 12);
+    $pdf->Write(0, 'No proof picture uploaded.', '', 0, 'L', true, 0, false, false, 0);
+}
 
-	$pdf->Ln(8);
 
-	// // $pdf->SetFont('times','B', 12);
-	// // $pdf->Cell(189, 6, '3.          Approved outstanding from previous year(state days):    '.$previous.' ', 0, 1);
-	// // $pdf->Cell(189, 6, '             (Provide evidence of approval)', 0, 1);
+// Output the PDF (Make sure there's no output before this line)
+$pdf->Output('Leave_Application_Form.pdf', 'I');
 
-	// // $pdf->Ln(8);
-
-	// // $pdf->SetFont('times','B', 12);
-	// // $pdf->Cell(189, 6, '4.          Leave Entitlement for 2021:    '.$leave_entitled.' ', 0, 1);
-
-	// // $pdf->Ln(8);
-	
-	// // $pdf->SetFont('times','B', 12);
-	// // $pdf->Cell(189, 6, '5.          Comulative Leave Entitlement:    '.$cumulative_leave.' ', 0, 1);
-
-	// $pdf->Ln(10);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(189, 6, '6.          Number of days requested:    '.$num_days.' ', 0, 1);
-
-	$pdf->Ln(10);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(189, 6, '7.          Number of days still outstanding:    '.$outstanding.' ', 0, 1);
-
-	$pdf->Ln(10);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(130, 6, '8.          Start date:    '.$start_date.' ', 0, 0);
-	$pdf->Cell(59, 6, 'End Date:   '.$end_date.'');
-
-	$pdf->Ln(12);
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(34, 15, '9.          Signature : .............................', 0, 0);
-	$pdf->writeHTMLCell(96,1,'','', '', 0, 0);
-	$pdf->Cell(59, 15, 'Date:   '.$posted.'', 0, 1);
-
-	$pdf->Ln(3);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(95, 18, '10.        Recommendation By (Head of Department): ......................', 0, 0);
-	$pdf->writeHTMLCell(35,30,'','', '', 0, 0);
-	$pdf->Cell(59, 18, 'Date:   '.$hod_date.'', 0, 1);
-
-	$pdf->Ln(8);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(189, 6, '11.       Work to be covered by:    '.$work_cover.' ', 0, 1);
-
-	$pdf->Ln(8);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(75, 18, '12.        Approved By (Rector/Registra): ......................', 0, 0);
-	$pdf->writeHTMLCell(55,1,'','', '', 0, 0);
-	$pdf->Cell(59, 18, 'Date:   '.$reg_date.'', 0, 1);
-
-	$pdf->Ln(8);
-	
-	$pdf->SetFont('times','B', 12);
-	$pdf->Cell(189, 6, '13.       Date Resumed (for official work):    '.$end_date.' ', 0, 1);
-
-	// Close and output PDF document
-	$pdf->Output('aci_1.pdf', 'I');
-
+?>
