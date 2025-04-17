@@ -36,8 +36,6 @@
 						<ul class="submenu">
 							
 							<li><a href="app.php">All Application</a></li>
-						</ul>
-						<ul class="submenu">
 							
 							<li><a href="my_leave.php">My Leave</a></li>
 						</ul>
