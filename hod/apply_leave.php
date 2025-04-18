@@ -70,6 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
     $requested_days = $_POST['requested_days'];
     $outstanding_days = $_POST['outstanding_days'];
     $reason = $_POST['reason'];
+    $is_half_day = isset($_POST['is_half_day']) ? $_POST['is_half_day'] : 0;
+    $half_day_type = isset($_POST['half_day_type']) ? $_POST['half_day_type'] : null;
+    $reason = $_POST['reason'];
     $datePosting = date("Y-m-d");
 
     // Fetch employee details
@@ -132,11 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
     } else {
         // No overlap, insert leave application into the database
         $insert_query = "
-            INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, Reason, PostingDate, Proof, HodRemarks)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ";
-        $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param('ssssssssss', $empid, $leave_type, $date_from, $date_to, $requested_days, $outstanding_days, $reason, $datePosting, $proof, $hod_remarks);
+        INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, Reason, PostingDate, Proof, IsHalfDay, HalfDayType)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ";
+    $stmt = $conn->prepare($insert_query);
+    $stmt->bind_param('sssssssssis', $empid, $leave_type, $date_from, $date_to, $requested_days, $outstanding_days, $reason, $datePosting, $proof, $is_half_day, $half_day_type);
 
         if ($stmt->execute()) {
             // Fetch the director's email dynamically

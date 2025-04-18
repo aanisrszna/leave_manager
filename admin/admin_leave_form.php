@@ -60,12 +60,11 @@ include('../includes/config.php');
 include('../includes/session.php');
 require '../send_email.php'; // Include email function
 
-
 $staffDetails = null;
 $leaveTypes = [];
 
 // Fetch staff details and leave types if Staff_ID is provided
-if(isset($_POST['fetch']) && !empty($_POST['staff_id'])) {
+if (isset($_POST['fetch']) && !empty($_POST['staff_id'])) {
     $staff_id = $_POST['staff_id'];
 
     // Fetch staff details based on Staff_ID
@@ -93,7 +92,7 @@ if(isset($_POST['fetch']) && !empty($_POST['staff_id'])) {
 }
 
 // Insert leave record
-if (isset($_POST['submit'])) {
+if (isset($_POST['apply'])) {
     $staff_id = $_POST['staff_id'];
     $leave_type_id = $_POST['leave_type'];
     $date_from = $_POST['date_from'];
@@ -102,11 +101,15 @@ if (isset($_POST['submit'])) {
     $outstanding_days = $_POST['outstanding_days'];
     $datePosting = date("Y-m-d");
     $reason = isset($_POST['reason']) && trim($_POST['reason']) !== '' ? $_POST['reason'] : 'No reason provided';
+    $is_half_day = isset($_POST['is_half_day']) ? $_POST['is_half_day'] : 0;
+    $half_day_type = isset($_POST['half_day_type']) ? $_POST['half_day_type'] : null;
+
     // Validate input
     if (empty($staff_id) || empty($leave_type_id)) {
         echo "<script>alert('Error: Staff ID and Leave Type are required.');</script>";
         exit();
     }
+
     // File upload handling
     $proof = null;
     if (isset($_FILES['proof']) && $_FILES['proof']['error'] == UPLOAD_ERR_OK) {
@@ -115,7 +118,6 @@ if (isset($_POST['submit'])) {
         $targetFilePath = $targetDir . $fileName;
         $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
 
-        // Validate file type and size
         $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];
         if (in_array(strtolower($fileType), $allowedTypes) && $_FILES['proof']['size'] <= 2 * 1024 * 1024) {
             if (move_uploaded_file($_FILES['proof']['tmp_name'], $targetFilePath)) {
@@ -129,6 +131,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Retrieve emp_id and role based on staff_id
+    // Retrieve emp_id and role based on staff_id
     $empQuery = "SELECT emp_id, role, Department, FirstName, EmailId FROM tblemployees WHERE Staff_ID = ?";
     $empStmt = $conn->prepare($empQuery);
     $empStmt->bind_param("s", $staff_id);
@@ -137,7 +140,7 @@ if (isset($_POST['submit'])) {
 
     if ($empResult->num_rows > 0) {
         $empRow = $empResult->fetch_assoc();
-        $empid = $empRow['emp_id'];
+        $empid = $empRow['emp_id'];  // Correct emp_id for the employee applying for leave
         $role = $empRow['role'];
         $department = $empRow['Department'];
         $empName = $empRow['FirstName'];
@@ -152,8 +155,6 @@ if (isset($_POST['submit'])) {
         $hodRow = $hodResult->fetch_assoc();
         $hodEmail = $hodRow['EmailId'] ?? null;
 
-        // Determine HodRemarks based on role
-
         // Retrieve leave type name
         $leaveTypeQuery = "SELECT LeaveType FROM tblleavetype WHERE id = ?";
         $leaveTypeStmt = $conn->prepare($leaveTypeQuery);
@@ -161,6 +162,7 @@ if (isset($_POST['submit'])) {
         $leaveTypeStmt->execute();
         $leaveTypeResult = $leaveTypeStmt->get_result();
         $leaveTypeRow = $leaveTypeResult->fetch_assoc();
+
         if (!$leaveTypeRow) {
             echo "<script>alert('Error: Invalid Leave Type selected.');</script>";
             exit();
@@ -168,13 +170,40 @@ if (isset($_POST['submit'])) {
 
         $leave_type = $leaveTypeRow['LeaveType'];
         $hod_remarks = ($role == 'Manager') ? 3 : 'Pending';
-        // Insert leave record
-        $insertQuery = "INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, reason, PostingDate, HodRemarks) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $insertStmt = $conn->prepare($insertQuery);
-        $insertStmt->bind_param('sssssssss', $empid, $leave_type, $date_from, $date_to, $requested_days, $outstanding_days, $reason, $datePosting, $hod_remarks);
 
-        if ($insertStmt->execute()) {
+        // 🔄 Overlapping leave check for the same empid
+        $overlapQuery = "
+            SELECT * FROM tblleave 
+            WHERE empid = ? 
+            AND (
+                (FromDate <= ? AND ToDate >= ?) OR 
+                (FromDate <= ? AND ToDate >= ?) OR 
+                (FromDate >= ? AND ToDate <= ?)
+            )
+        ";
+        $overlapStmt = $conn->prepare($overlapQuery);
+        $overlapStmt->bind_param("issssss", $empid, $date_to, $date_to, $date_from, $date_from, $date_from, $date_to);
+        $overlapStmt->execute();
+        $overlapResult = $overlapStmt->get_result();
+        if ($overlapResult->num_rows > 0) {
+            echo "<script>
+                alert('Error: The selected date range overlaps with an existing leave record.');
+                window.location.href = 'admin_leave_form.php';
+            </script>";
+            exit();
+        }
+        
+        
+    
+        // ✅ Insert leave record
+        $insert_query = "
+            INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, Reason, PostingDate, Proof, IsHalfDay, HalfDayType)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ";
+        $stmt = $conn->prepare($insert_query);
+        $stmt->bind_param('sssssssssis', $empid, $leave_type, $date_from, $date_to, $requested_days, $outstanding_days, $reason, $datePosting, $proof, $is_half_day, $half_day_type);
+
+        if ($stmt->execute()) {
             echo "<script>alert('Leave record added successfully.');</script>";
 
             // Send email to employee
@@ -214,14 +243,16 @@ if (isset($_POST['submit'])) {
                 ";
                 //send_email($hodEmail, $subject, $message);
             }
+
         } else {
-            echo "<script>alert('Failed to add leave record.');</script>";
+            echo "<script>alert('Failed to add leave record. Error: " . $stmt->error . "');</script>";
         }
     } else {
         echo "<script>alert('Invalid Staff ID.');</script>";
     }
 }
 ?>
+
 
 
 
@@ -256,7 +287,7 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
                     <div class="wizard-content">
-                        <form method="post" action="">
+                        <form id="leaveForm" method="post" action="">
                             <div class="form-group">
                                 <label for="staff_id">Staff ID:</label>
                                 <input type="text" id="staff_id" name="staff_id" class="form-control mb-3" value="<?php echo $_POST['staff_id'] ?? ''; ?>" placeholder="Enter Staff ID" required>

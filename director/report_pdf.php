@@ -6,7 +6,8 @@ require_once('../TCPDF-main/tcpdf.php');
 $did = intval($_GET['leave_id']);
 $sql = "SELECT tblemployees.FirstName, tblemployees.Staff_ID, tblemployees.Position_Staff, tblemployees.Phonenumber, tblemployees.EmailId, 
                tblleave.LeaveType, tblleave.RequestedDays, tblleave.DaysOutstand, tblleave.PostingDate, tblleave.FromDate, tblleave.ToDate, 
-               tblleave.HodRemarks, tblleave.RegRemarks, tblleave.HodSign, tblleave.RegSign, tblleave.HodDate, tblleave.RegDate, tblleave.proof
+               tblleave.HodRemarks, tblleave.RegRemarks, tblleave.HodSign, tblleave.RegSign, tblleave.HodDate, tblleave.RegDate, tblleave.proof,
+               tblleave.HalfDayType, tblleave.reason, tblemployees.Emergency_Contact, tblemployees.Emergency_Name
         FROM tblleave 
         JOIN tblemployees ON tblleave.empid = tblemployees.emp_id 
         WHERE tblleave.id = '$did'";
@@ -32,7 +33,10 @@ $hod_date = !empty($row['HodDate']) ? date('d-M-Y', strtotime($row['HodDate'])) 
 $reg_date = !empty($row['RegDate']) ? date('d-M-Y', strtotime($row['RegDate'])) : '';
 
 $proof_picture = '../proof/' . $row['proof'];
-
+$halfday = $row['HalfDayType'];
+$reason =$row['reason'];
+$emergencyname = $row['Emergency_Name'];
+$emergencycontact =$row['Emergency_Contact'];
 // Define custom PDF class
 class MYPDF extends TCPDF {
     private $fullname;
@@ -83,13 +87,34 @@ $html .= <<<EOD
 <!-- Leave Details -->
 <br><br><br><br><br><br><br><br>
 <table cellspacing="0" cellpadding="5" border="1">
-    <tr><td><b>Leave Start Date</b></td><td>$leave_start</td></tr>
-    <tr><td><b>Leave End Date</b></td><td>$leave_end</td></tr>
-    <tr><td><b>No. of Days</b></td><td>$requested_days</td></tr>
-    <tr><td><b>Leave Type</b></td><td>$leave_type</td></tr>
+    <thead>
+        <tr>
+            <th colspan="6" style="text-align: center;"><b>Leave Application</b></th>
+        </tr>
+        <tr>
+            <th>Start</th>
+            <th>End</th>
+            <th>No of day(s)</th>
+            <th>AM / PM<br><small>(halfday only)</small></th>
+            <th>Leave type</th>
+            <th>Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>$leave_start</td>
+            <td>$leave_end</td>
+            <td>$requested_days</td>
+            <td>$halfday</td>
+            <td>$leave_type</td>
+            <td>$reason</td>
+        </tr>
+
+    </tbody>
 </table>
 
-<p>In case of emergency, I can be reached at: <b>$phone_number</b></p>
+
+<p>In case of emergency, I can be reached at: <b>$emergencycontact ($emergencyname)</b></p>
 <br>
 <!-- Approvals Section -->
 <table cellspacing="0" cellpadding="5" border="1" style="width:100%;">

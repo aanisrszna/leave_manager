@@ -70,6 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
     $requested_days = $_POST['requested_days'];
     $outstanding_days = $_POST['outstanding_days'];
     $reason = $_POST['reason'];
+    $is_half_day = isset($_POST['is_half_day']) ? $_POST['is_half_day'] : 0;
+    $half_day_type = isset($_POST['half_day_type']) ? $_POST['half_day_type'] : null;
+
     $datePosting = date("Y-m-d");
 
     // Fetch employee details including department
@@ -133,12 +136,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
         $error_message = 'You already applied for this date. Delete it first before submitting a new application.';
     } else {
         // Insert leave application into the database
-        $insert_query = "
-            INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, Reason, PostingDate, Proof)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ";
-        $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param('sssssssss', $empid, $leave_type, $date_from, $date_to, $requested_days, $outstanding_days, $reason, $datePosting, $proof);
+    $insert_query = "
+        INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, Reason, PostingDate, Proof, IsHalfDay, HalfDayType)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ";
+    $stmt = $conn->prepare($insert_query);
+    $stmt->bind_param('sssssssssis', $empid, $leave_type, $date_from, $date_to, $requested_days, $outstanding_days, $reason, $datePosting, $proof, $is_half_day, $half_day_type);
+
 
         if ($stmt->execute()) {
             // Email notification to HOD
@@ -161,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
                     <p><a href='$redirectLink'>E-Leave Manager</a></p>
                 ";
                 //
-                send_email($hod_email, $subject_hod, $message_hod);
+                //send_email($hod_email, $subject_hod, $message_hod);
             }
 
             // Email confirmation to the employee
@@ -327,7 +331,7 @@ if (isset($error_message)) {
                                     <div class="col-md-6 col-sm-12" id="half_day_type_container" style="display: none;">
                                         <div class="form-group">
                                             <label>Half-Day Type</label>
-                                            <select id="half_day_type" name="half_day_type" class="custom-select form-control">
+                                            <select id="half_day_type" name="half_day_type" class="custom-select form-control" >
                                                 <option value="AM">Morning (AM)</option>
                                                 <option value="PM">Afternoon (PM)</option>
                                             </select>
