@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
                 ";
 
                 // Send email notification
-                //$email_status = send_email($director_email, $subject, $message);
+                $email_status = send_email($director_email, $subject, $message);
 
                 // Display success message
                 echo "<script>alert('Leave application submitted. $email_status');</script>";

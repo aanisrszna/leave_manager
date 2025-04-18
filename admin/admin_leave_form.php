@@ -223,7 +223,7 @@ if (isset($_POST['apply'])) {
                     <p>Best regards,<br><strong>e-Leave Manager System</strong></p>
                 ";
 
-                //send_email($empEmail, $subject, $message);
+                send_email($empEmail, $subject, $message);
             }
 
             // Send email to manager
@@ -241,7 +241,7 @@ if (isset($_POST['apply'])) {
                     </table>
                     <p>Please review the application in the system.</p>
                 ";
-                //send_email($hodEmail, $subject, $message);
+                send_email($hodEmail, $subject, $message);
             }
 
         } else {

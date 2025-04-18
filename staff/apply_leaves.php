@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
                     <p><a href='$redirectLink'>E-Leave Manager</a></p>
                 ";
                 //
-                //send_email($hod_email, $subject_hod, $message_hod);
+                send_email($hod_email, $subject_hod, $message_hod);
             }
 
             // Email confirmation to the employee
