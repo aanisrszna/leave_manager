@@ -86,16 +86,11 @@
 	                             <?php } ?>
 	                            </td>
 								<td>
-									<div class="dropdown">
-										<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-											<i class="dw dw-more"></i>
-										</a>
-										<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-											<a class="dropdown-item" href="leave_details.php?leaveid=<?php echo $row['lid']; ?>"><i class="dw dw-eye"></i> View</a>
-											<a class="dropdown-item" href="admin_dashboard.php?leaveid=<?php echo $row['lid']; ?>"><i class="dw dw-delete-3"></i> Delete</a>
-										</div>
-									</div>
+									<a class="btn btn-link font-24 p-0 line-height-1" href="leave_details.php?leaveid=<?php echo $row['lid']; ?>">
+										<i class="dw dw-eye"></i>
+									</a>
 								</td>
+
 							</tr>
 							<?php }?>
 						</tbody>

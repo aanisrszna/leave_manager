@@ -1,17 +1,24 @@
 <?php include('includes/header.php')?>
 <?php include('../includes/session.php')?>
+
 <?php
 if (isset($_GET['delete'])) {
-	$delete = $_GET['delete'];
-	$sql = "DELETE FROM tblemployees where emp_id = ".$delete;
-	$result = mysqli_query($conn, $sql);
-	if ($result) {
-		echo "<script>alert('Staff deleted Successfully');</script>";
-     	echo "<script type='text/javascript'> document.location = 'staff.php'; </script>";
-		
+	$delete = intval($_GET['delete']);
+	// Ensure only delete leave if RegRemarks == 0
+	$check = mysqli_query($conn, "SELECT RegRemarks FROM tblleave WHERE id = $delete AND empid = '$session_id'");
+	$row = mysqli_fetch_assoc($check);
+
+	if ($row && $row['RegRemarks'] == 0) {
+		$sql = "DELETE FROM tblleave WHERE id = $delete AND empid = '$session_id'";
+		$result = mysqli_query($conn, $sql);
+		if ($result) {
+			echo "<script>alert('Leave request withdrawn successfully');</script>";
+			echo "<script type='text/javascript'> document.location = 'leave_history.php'; </script>";
+		}
+	} else {
+		echo "<script>alert('You can only delete pending leave requests.');</script>";
 	}
 }
-
 ?>
 
 <body>
@@ -171,11 +178,21 @@ if (isset($_GET['delete'])) {
 	                                       <?php } ?>
 
                                     </td>
-								   <td>
-									  <div class="table-actions">
-										<a title="VIEW" href="view_leaves.php?edit=<?php echo htmlentities($result->id);?>" data-color="#265ed7"><i class="icon-copy dw dw-eye"></i></a>
-									  </div>
-								   </td>
+									<td>
+										<div class="dropdown">
+											<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+												<i class="dw dw-more"></i>
+											</a>
+											<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+							
+												<a class="dropdown-item" href="view_leaves.php?edit=<?php echo htmlentities($result->id); ?>"><i class="dw dw-eye"></i> View</a>
+												<?php if ($result->RegRemarks == 0): ?>
+													<a class="dropdown-item" href="leave_history.php?delete=<?php echo htmlentities($result->id); ?>" onclick="return confirm('Are you sure you want to withdraw this leave?');"><i class="dw dw-delete-3"></i> Delete</a>
+												<?php endif; ?>
+											</div>
+										</div>
+									</td>
+
 							</tr>
 							<?php $cnt++;} }?>  
 						</tbody>
