@@ -161,7 +161,7 @@
 									FROM tblleave
 									JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
 									WHERE tblleave.RegRemarks = 0 -- Pending at director's level
-									AND (tblleave.HodRemarks != 0 OR tblemployees.Role = 'Admin') -- Include Admins' applications
+									AND (tblleave.HodRemarks != 0 OR tblemployees.Role = 'Manager') -- Include Admins' applications
 									ORDER BY tblleave.id DESC LIMIT 10";
 
 							$query = $dbh->prepare($sql);
