@@ -253,9 +253,11 @@
             <div class="row pb-0">
                 <?php
                 // Fetch distinct employees
-                $sql = "SELECT DISTINCT tblemployees.emp_id, tblemployees.FirstName, tblemployees.Staff_ID,tblemployees.Reporting_To 
-                        FROM employee_leave
-                        JOIN tblemployees ON employee_leave.emp_id = tblemployees.emp_id";
+                $sql = "SELECT DISTINCT tblemployees.emp_id, tblemployees.FirstName, tblemployees.Staff_ID, tblemployees.Reporting_To 
+                FROM employee_leave
+                JOIN tblemployees ON employee_leave.emp_id = tblemployees.emp_id
+                WHERE tblemployees.Status = 'Active'";
+        
                 $query = $dbh->prepare($sql);
                 $query->execute();
                 $employees = $query->fetchAll(PDO::FETCH_OBJ);

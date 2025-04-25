@@ -24,7 +24,8 @@ if (isset($_POST['update_staff'])) {
     $emergency_name = $_POST['emergency_name'];
     $emergency_relation = $_POST['emergency_relation'];
     $password = $_POST['Password'];
-    
+    $Status = $_POST['Status'];
+
 
         // Retrieve the current hashed password
     $current_password_query = mysqli_query($conn, "SELECT Password FROM tblemployees WHERE emp_id='$get_id'");
@@ -60,7 +61,8 @@ if (isset($_POST['update_staff'])) {
         Service_Year='$service_year', 
         Emergency_Name='$emergency_name', 
         Emergency_Relation='$emergency_relation',
-        Password='$hashed_password'
+        Password='$hashed_password',
+        Status='$Status'
         WHERE emp_id='$get_id'");
 
     if ($result) {
@@ -336,11 +338,25 @@ if (isset($_POST['update_staff'])) {
                             <div class="row">
                                 <div class="col-md-6 col-sm-12">
                                     <div class="form-group">
+                                        <label>Status :</label>
+                                        <select name="Status" class="custom-select form-control" required>
+                                            <option value="Active" <?php if($row['Status'] == 'Active') echo 'selected'; ?>>Active</option>
+                                            <option value="Inactive" <?php if($row['Status'] == 'Inactive') echo 'selected'; ?>>Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="form-group">
                                         <label>New Password (Leave blank to keep current password):</label>
                                         <input name="Password" type="password" class="form-control wizard-required" autocomplete="off" placeholder="Enter new password (optional)">
                                     </div>
                                 </div>
+
                             </div>
+                                <div class="row">
+
+                            </div>
+
 
 
                             <div class="col-md-12 text-center">                        
