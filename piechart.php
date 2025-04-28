@@ -41,7 +41,7 @@ foreach ($results as $row) {
         $leaveCountsMedical[$name] = 0;
     }
 
-    if (in_array($leaveType, [1, 2, 3, 33, 34, 35])) {
+    if (in_array($leaveType, [1, 2, 3, 33, 34, 35,36,37])) {
         if (!isset($leaveCountsAnnual[$name])) {
             $leaveCountsAnnual[$name] = 0;
         }
