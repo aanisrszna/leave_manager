@@ -50,7 +50,7 @@ foreach ($results as $row) {
     }
 
     // Treat leave types 4 and 33 as medical leave
-    if (in_array($leaveType, [4, 33])) {
+    if (in_array($leaveType, [4, 38])) {
         if (!isset($leaveCountsMedical[$name])) {
             $leaveCountsMedical[$name] = 0;
         }
