@@ -41,22 +41,23 @@ foreach ($results as $row) {
         $leaveCountsMedical[$name] = 0;
     }
 
-    if (in_array($leaveType, [1, 2, 3, 33, 34, 35,36,37])) {
+    // Treat leave types 1, 2, 3, 34, 35, 36, 37 as annual leave (33 moved to medical)
+    if (in_array($leaveType, [1, 2, 3, 34, 35, 36, 37])) {
         if (!isset($leaveCountsAnnual[$name])) {
             $leaveCountsAnnual[$name] = 0;
         }
-        $leaveCountsAnnual[$name] += $leaveDays; // Accumulate leave days
+        $leaveCountsAnnual[$name] += $leaveDays;
     }
-    
-    if ($leaveType === 4) {
+
+    // Treat leave types 4 and 33 as medical leave
+    if (in_array($leaveType, [4, 33])) {
         if (!isset($leaveCountsMedical[$name])) {
             $leaveCountsMedical[$name] = 0;
         }
-        $leaveCountsMedical[$name] += $leaveDays; // Accumulate medical leave days
+        $leaveCountsMedical[$name] += $leaveDays;
     }
-    
-    
 }
+
 
 // Ensure all employees have values for both leave types
 foreach ($employees as $name) {
