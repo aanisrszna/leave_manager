@@ -13,7 +13,12 @@ function calc() {
 
     // Check if FromDate is at least 5 business days from today (excluding "Medical/Sick Leave")
     const minBusinessDate = getMinBusinessDate(currentDate, 5);
-    if (selectedLeaveType !== "Medical/Sick Leave" && startDate < minBusinessDate) {
+    if (
+    selectedLeaveType !== "Medical/Sick Leave" &&
+    selectedLeaveType !== "Medical/Sick Leave - Anis" &&
+    startDate < minBusinessDate
+    ) {
+
         alert("Leave application must be submitted at least 5 business days before the FromDate!");
         resetInputs();
         return;

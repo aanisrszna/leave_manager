@@ -14,7 +14,7 @@ if (isset($_POST['add_staff'])) {
     $phonenumber = $_POST['phonenumber'];
     $position_staff = $_POST['position_staff'];
     $staff_id = $_POST['staff_id'];
-    $status = 1;
+    $status = 'Active';
     $date_joined = $_POST['date_joined'];
     $emergency_contact = $_POST['emergency_contact'];
     $car_plate = $_POST['car_plate'];
