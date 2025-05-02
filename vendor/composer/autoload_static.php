@@ -27,6 +27,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
     );
 
     public static $prefixLengthsPsr4 = array (
+        's' => 
+        array (
+            'setasign\\Fpdi\\' => 14,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php82\\' => 23,
@@ -110,6 +114,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
     );
 
     public static $prefixDirsPsr4 = array (
+        'setasign\\Fpdi\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
         'Symfony\\Polyfill\\Php82\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php82',
@@ -144,8 +152,8 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (

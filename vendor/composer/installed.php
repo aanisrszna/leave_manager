@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'b544d43c85b84c7322a2684b820dc26f3b9a2edd',
+        'reference' => '74d303f0d3a645db84170db398483a8d48dc3103',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'b544d43c85b84c7322a2684b820dc26f3b9a2edd',
+            'reference' => '74d303f0d3a645db84170db398483a8d48dc3103',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -381,6 +381,15 @@
             'replaced' => array(
                 0 => '4.7.6',
             ),
+        ),
+        'setasign/fpdi' => array(
+            'pretty_version' => 'v2.6.3',
+            'version' => '2.6.3.0',
+            'reference' => '67c31f5e50c93c20579ca9e23035d8c540b51941',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../setasign/fpdi',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'stduritemplate/stduritemplate' => array(
             'pretty_version' => '0.0.57',

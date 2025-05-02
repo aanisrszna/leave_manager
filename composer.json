@@ -2,7 +2,8 @@
     "require": {
         "phpmailer/phpmailer": "*",
         "microsoft/microsoft-graph": "*",
-        "vlucas/phpdotenv": "*"
+        "vlucas/phpdotenv": "*",
+        "setasign/fpdi": "^2.6"
     },
     "config": {
         "allow-plugins": {

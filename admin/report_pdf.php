@@ -32,7 +32,7 @@ $reg_sign = !empty($row['RegSign']) ? '../signature/' . $row['RegSign'] : 'No Si
 $hod_date = !empty($row['HodDate']) ? date('d-M-Y', strtotime($row['HodDate'])) : '';
 $reg_date = !empty($row['RegDate']) ? date('d-M-Y', strtotime($row['RegDate'])) : '';
 
-$proof_picture = '../proof/' . $row['proof'];
+$proof_path = '../' . $row['proof'];
 $halfday = $row['HalfDayType'];
 $reason =$row['reason'];
 $emergencyname = $row['Emergency_Name'];
@@ -153,13 +153,29 @@ EOD;
 
 $pdf->writeHTML($html, true, false, true, false, '');
 
-if (!empty($proof_picture)) {
-    $pdf->Image($proof_picture, 15, $pdf->GetY(), 100, 60, '', '', 'T', true, 300, '', false, false, 1, false, false, false);
+$extension = strtolower(pathinfo($proof_path, PATHINFO_EXTENSION));
+
+if (!empty($row['proof']) && file_exists($proof_path)) {
+    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+        $pdf->Image($proof_path, 15, $pdf->GetY(), 100, 60, '', '', 'T', true, 300);
+        $pdf->Ln(70); // Add space after image
+    } elseif ($extension === 'pdf') {
+        $pdf->SetFont('helvetica', '', 11);
+        $pdf->Write(0, 'Proof is a PDF file. You can view it at the following link:', '', 0, 'L', true, 0, false, false, 0);
+
+        $baseUrl = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/rr_leave_portal/';
+        $pdfLink = $baseUrl . $row['proof'];
+
+        $pdf->SetTextColor(0, 0, 255);
+        $pdf->Write(0, $pdfLink, $pdfLink, 0, 'L', true, 0, false, true, 0);
+        $pdf->SetTextColor(0, 0, 0); // Reset text color
+    } else {
+        $pdf->Write(0, 'Unsupported proof file type.', '', 0, 'L', true, 0, false, false, 0);
+    }
 } else {
     $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->Write(0, 'No proof picture uploaded.', '', 0, 'L', true, 0, false, false, 0);
+    $pdf->Write(0, 'No proof file uploaded.', '', 0, 'L', true, 0, false, false, 0);
 }
-
 
 // Output the PDF (Make sure there's no output before this line)
 $pdf->Output('Leave_Application_Form.pdf', 'I');
