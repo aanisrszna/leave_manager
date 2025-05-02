@@ -134,7 +134,7 @@ function draw_calendar($month, $year, $events) {
         $eventClass = match ($eventType) {
             'holiday' => 'bg-danger text-white',
             'birthday' => 'bg-warning text-dark',
-            'leave' => 'bg-primary text-white',
+            'leave' => 'bg-success text-white',
             default => ''
         };
 
@@ -167,7 +167,7 @@ function draw_calendar($month, $year, $events) {
 
         <div class="legend-item"><span class="legend-box bg-danger"></span> Holiday</div>
         <div class="legend-item"><span class="legend-box bg-warning"></span> Birthday</div>
-        <div class="legend-item"><span class="legend-box bg-primary"></span> Leave</div>
+        <div class="legend-item"><span class="legend-box bg-success"></span> Leave</div>
         <div class="legend-item"><span class="legend-box bg-secondary"></span> Today</div>
     </div>
     <br> 
