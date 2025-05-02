@@ -147,6 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
             $director_result = $conn->query($director_query);
 
             if ($director_result->num_rows > 0) {
+                $redirectLink = "http://192.168.1.15/leave_manager/index.php";
+
                 $director_row = $director_result->fetch_assoc();
                 $director_email = $director_row['EmailId'];
 
@@ -165,6 +167,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
                     </table>
                     <p>Please review the application.</p>
                     <p>Best regards,<br><strong>e-Leave Manager System</strong></p>
+                    <p><a href='$redirectLink'>E-Leave Manager</a></p>
+
                 ";
 
                 // Send email notification

@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
         if ($stmt->execute()) {
             // Email notification to HOD
             if (!empty($hod_email)) {
-                $redirectLink = "http://localhost/rr_leave_portal/index.php";
+                $redirectLink = "http://192.168.1.15/leave_manager/index.php";
 
                 $subject_hod = "New Leave Application from $emp_name";
                 $message_hod = "

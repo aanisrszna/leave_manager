@@ -46,7 +46,7 @@ if (isset($_POST['update'])) {
     $date_to = $row['ToDate'];
     $requested_days = $row['RequestedDays'];
     $reason = $row['reason'];
-	$redirectLink = "http://localhost/rr_leave_portal/index.php";
+	$redirectLink = "http://192.168.1.15/leave_manager/index.php";
 
     if ($status === '2') { // Leave Rejected
 
