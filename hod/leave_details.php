@@ -317,14 +317,29 @@ if (isset($_POST['update'])) {
 							<div class="col-md-12">
 								<label style="font-size:16px;"><b>Proof Picture</b></label>
 								<div class="avatar mr-2 flex-shrink-0">
-									<?php if (!empty($result->proof)) { ?>
-										<img src="<?php echo '../proof/' . htmlentities($result->proof); ?>" style="max-width: 100%; height: auto;" alt="Proof Picture">
-									<?php } else { ?>
+									<?php if (!empty($result->proof)) { 
+										// Remove any leading "proof/" if it's already in the value
+										$proofPath = preg_replace('#^proof/#', '', $result->proof);
+										$fullPath = '../proof/' . htmlentities($proofPath);
+										$extension = pathinfo($proofPath, PATHINFO_EXTENSION);
+										
+										if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+									?>
+											<img src="<?php echo $fullPath; ?>" style="max-width: 100%; height: auto;" alt="Proof Picture">
+									<?php 
+										} else {
+											// Fallback for non-image files like PDF
+									?>
+											<a href="<?php echo $fullPath; ?>" target="_blank">View uploaded file (<?php echo strtoupper($extension); ?>)</a>
+									<?php 
+										} 
+									} else { ?>
 										<p>No proof picture uploaded.</p>
 									<?php } ?>
 								</div>
 							</div>
 						</div>
+
 						<div class="form-group row">
 							<div class="col-md-6 col-sm-12">
 							    <div class="form-group">

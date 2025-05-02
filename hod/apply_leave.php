@@ -98,23 +98,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
     // File upload handling
     $proof = null;
     if (isset($_FILES['proof']) && $_FILES['proof']['error'] === UPLOAD_ERR_OK) {
-        $targetDir = "../proof/";
-        $fileName = basename($_FILES['proof']['name']);
-        $targetFilePath = $targetDir . $fileName;
-        $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+        $uploadDir = __DIR__ . '/../proof/'; // Full server path
+        $relativeDir = 'proof/';             // For DB or web access
 
-        // Validate file type and size
+        // Ensure directory exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $originalName = basename($_FILES['proof']['name']);
+        $fileType = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
         $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];
-        if (in_array(strtolower($fileType), $allowedTypes) && $_FILES['proof']['size'] <= 2 * 1024 * 1024) {
+
+        if (in_array($fileType, $allowedTypes) && $_FILES['proof']['size'] <= 10 * 1024 * 1024) {
+            // Create unique filename
+            $newFileName = time() . '_' . preg_replace('/\s+/', '_', $originalName);
+            $targetFilePath = $uploadDir . $newFileName;
+
             if (move_uploaded_file($_FILES['proof']['tmp_name'], $targetFilePath)) {
-                $proof = $fileName;
+                $proof = $relativeDir . $newFileName; // Save relative path to DB
             } else {
-                $error_message = 'Failed to upload proof file.';
+                die('❌ Failed to upload proof file.');
             }
         } else {
-            $error_message = 'Invalid file type or file size exceeds 2MB.';
+            die('❌ Invalid file type or size exceeds 10MB.');
         }
     }
+
+
+
 
     // Check for overlapping leave dates
     $overlap_check_query = "
@@ -231,7 +244,7 @@ if (isset($error_message)) {
                         </div>
                     </div>
                     <div class="wizard-content">
-                        <form method="post" action="">
+                        <form method="post" action="" enctype="multipart/form-data">
                             <section>
 
                                 <?php if ($role_id = 'Staff'): ?>
@@ -374,7 +387,7 @@ if (isset($error_message)) {
                                                     Browse
                                                     <input type="file" name="proof" id="proof" accept=".pdf, .jpg, .jpeg, .png">
                                                 </div>
-                                                <span class="j-hint">Only: pdf, jpg, jpeg, png, less than 2MB</span>
+                                                <span class="j-hint">Only: pdf, jpg, jpeg, png, less than 10MB</span>
                                             </div>
                                         </div>
                                     </div>

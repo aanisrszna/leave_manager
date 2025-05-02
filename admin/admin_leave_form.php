@@ -112,21 +112,32 @@ if (isset($_POST['apply'])) {
 
     // File upload handling
     $proof = null;
-    if (isset($_FILES['proof']) && $_FILES['proof']['error'] == UPLOAD_ERR_OK) {
-        $targetDir = "../proof/";
-        $fileName = basename($_FILES['proof']['name']);
-        $targetFilePath = $targetDir . $fileName;
-        $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+    if (isset($_FILES['proof']) && $_FILES['proof']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/../proof/'; // Full server path
+        $relativeDir = 'proof/';             // For DB or web access
+
+        // Ensure directory exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $originalName = basename($_FILES['proof']['name']);
+        $fileType = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
         $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];
-        if (in_array(strtolower($fileType), $allowedTypes) && $_FILES['proof']['size'] <= 2 * 1024 * 1024) {
+
+        if (in_array($fileType, $allowedTypes) && $_FILES['proof']['size'] <= 10 * 1024 * 1024) {
+            // Create unique filename
+            $newFileName = time() . '_' . preg_replace('/\s+/', '_', $originalName);
+            $targetFilePath = $uploadDir . $newFileName;
+
             if (move_uploaded_file($_FILES['proof']['tmp_name'], $targetFilePath)) {
-                $proof = $fileName;
+                $proof = $relativeDir . $newFileName; // Save relative path to DB
             } else {
-                echo "<script>alert('Failed to upload proof file.');</script>";
+                die('❌ Failed to upload proof file.');
             }
         } else {
-            echo "<script>alert('Invalid file type or file size exceeds 2MB.');</script>";
+            die('❌ Invalid file type or size exceeds 10MB.');
         }
     }
 
@@ -223,7 +234,7 @@ if (isset($_POST['apply'])) {
                     <p>Best regards,<br><strong>e-Leave Manager System</strong></p>
                 ";
 
-                send_email($empEmail, $subject, $message);
+                //send_email($empEmail, $subject, $message);
             }
 
             // Send email to manager
@@ -241,7 +252,7 @@ if (isset($_POST['apply'])) {
                     </table>
                     <p>Please review the application in the system.</p>
                 ";
-                send_email($hodEmail, $subject, $message);
+                //send_email($hodEmail, $subject, $message);
             }
 
         } else {
@@ -287,7 +298,7 @@ if (isset($_POST['apply'])) {
                         </div>
                     </div>
                     <div class="wizard-content">
-                        <form id="leaveForm" method="post" action="">
+                        <form id="leaveForm" method="post" action="" enctype="multipart/form-data">
                             <div class="form-group">
                                 <label for="staff_id">Staff ID:</label>
                                 <input type="text" id="staff_id" name="staff_id" class="form-control mb-3" value="<?php echo $_POST['staff_id'] ?? ''; ?>" placeholder="Enter Staff ID" required>
@@ -429,7 +440,7 @@ if (isset($_POST['apply'])) {
                                                 Browse
                                                 <input type="file" name="proof" id="proof" accept=".pdf, .jpg, .jpeg, .png">
                                             </div>
-                                            <span class="j-hint">Only: pdf, jpg, jpeg, png, less than 2MB</span>
+                                            <span class="j-hint">Only: pdf, jpg, jpeg, png, less than 10MB</span>
                                         </div>
                                     </div>
                                 </div>
