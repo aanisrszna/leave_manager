@@ -43,10 +43,13 @@ while ($row = mysqli_fetch_array($birthdayQuery)) {
 // Fetch Employee Leaves
 $leaveDates = [];
 $leaveQuery = mysqli_query($conn, "
-    SELECT tblleave.FromDate, tblleave.ToDate, tblemployees.FirstName,tblemployees.LastName, tblleave.RegRemarks 
+    SELECT tblleave.FromDate, tblleave.ToDate, tblemployees.FirstName, tblemployees.LastName, tblleave.RegRemarks, tblleavetype.LeaveType 
     FROM tblleave 
     INNER JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
+    INNER JOIN tblleavetype ON tblleave.LeaveType = tblleavetype.LeaveType
+    WHERE tblleavetype.id NOT IN (5, 6, 7, 8)
 ");
+
 while ($row = mysqli_fetch_array($leaveQuery)) {
     if ($row['RegRemarks'] == 1) {
         $fromDate = new DateTime($row['FromDate']);
