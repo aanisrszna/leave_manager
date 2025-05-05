@@ -282,42 +282,38 @@ if (isset($error_message)) {
                                             <select name="leave_type" id="leave_type" class="custom-select form-control" required="true" onchange="toggleProofField()">
                                                 <option value="">Select leave type...</option>
                                                 <?php
-                                                $query = mysqli_query($conn, "
-                                                    SELECT 
-                                                        el.emp_id,
-                                                        lt.LeaveType,
-                                                        lt.Description,
-                                                        el.available_day,
-                                                        lt.NeedProof
-                                                    FROM 
-                                                        employee_leave el
-                                                    INNER JOIN 
-                                                        tblleavetype lt 
-                                                    ON 
-                                                        el.leave_type_id = lt.id
-                                                    WHERE 
-                                                        el.emp_id = '$session_id'
-                                                ") or die(mysqli_error($conn));
+                                                    $query = mysqli_query($conn, "
+                                                        SELECT 
+                                                            el.emp_id,
+                                                            lt.LeaveType,
+                                                            lt.Description,
+                                                            el.available_day,
+                                                            lt.NeedProof
+                                                        FROM 
+                                                            employee_leave el
+                                                        INNER JOIN 
+                                                            tblleavetype lt 
+                                                            ON el.leave_type_id = lt.id
+                                                        WHERE 
+                                                            el.emp_id = '$session_id'
+                                                            AND TRIM(lt.LeaveType) NOT IN ('Emergency Leave', 'Unpaid Leave')
+                                                    ") or die(mysqli_error($conn));
 
-                                                while ($row = mysqli_fetch_assoc($query)) {
-                                                    $leaveType = $row['LeaveType'];
-                                                    
-                                                    // Exclude Emergency Leave and Unpaid Leave
-                                                    if ($leaveType === 'Emergency Leave' || $leaveType === 'Unpaid Leave') {
-                                                        continue;
+                                                    while ($row = mysqli_fetch_assoc($query)) {
+                                                        if ((int)$row['available_day'] <= 0) {
+                                                            continue; // Skip leave types with 0 or negative available days
+                                                        }
+                                                        echo '<option value="' . $row['LeaveType'] . '" 
+                                                                data-available-days="' . $row['available_day'] . '" 
+                                                                data-need-proof="' . $row['NeedProof'] . '">'
+                                                            . htmlentities($row['LeaveType']) . ' - Available: ' . $row['available_day'] . ' days</option>';
                                                     }
-
-                                                    echo '<option value="' . $leaveType . '" 
-                                                            data-available-days="' . $row['available_day'] . '" 
-                                                            data-need-proof="' . $row['NeedProof'] . '">'
-                                                        . htmlentities($leaveType) . '- Available: ' . $row['available_day'] . ' days</option>';
-                                                }
                                                 ?>
-
                                             </select>
                                         </div>
                                     </div>
                                 </div>
+
 
                                 <div class="row">
                                     <div class="col-md-6 col-sm-12">

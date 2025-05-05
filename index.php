@@ -22,11 +22,6 @@ if (isset($_POST['signin'])) {
             $_SESSION['arole'] = $row['role'];
             $_SESSION['adepart'] = $row['Department'];
 
-            // Update login status
-            $emp_id = $_SESSION['alogin'];
-            $update_status = $conn->prepare("UPDATE tblemployees SET status='Online' WHERE emp_id=?");
-            $update_status->bind_param("s", $emp_id);
-            $update_status->execute();
 
             // Step 3: Redirect based on role
             switch ($row['role']) {

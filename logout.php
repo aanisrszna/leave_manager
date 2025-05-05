@@ -6,7 +6,6 @@ include('includes/config.php');
  }
 
  //login active status
-$result = mysqli_query($conn, "UPDATE tblemployees SET status='Offline' WHERE emp_id='$emp_id'");
 
 $_SESSION = array();
 if (ini_get("session.use_cookies")) {
