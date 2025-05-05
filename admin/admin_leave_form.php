@@ -328,7 +328,6 @@ if (isset($_POST['apply'])) {
                                 </div> -->
                             <div class="row">
                                 <div class="col-md-12 col-sm-12">
-
                                     <div class="form-group">
                                         <label for="leave_type">Leave Type</label>
                                         <select id="leave_type" name="leave_type" class="form-control" required="true" onchange="toggleProofField()">
@@ -350,28 +349,30 @@ if (isset($_POST['apply'])) {
                                                     employee_leave el
                                                 INNER JOIN 
                                                     tblleavetype lt 
-                                                ON 
-                                                    el.leave_type_id = lt.id
+                                                    ON el.leave_type_id = lt.id
                                                 INNER JOIN 
                                                     tblemployees te 
-                                                ON 
-                                                    el.emp_id = te.emp_id
+                                                    ON el.emp_id = te.emp_id
                                                 WHERE 
                                                     te.Staff_ID = '$staff_id'
                                             ") or die(mysqli_error($conn));
 
                                             while ($row = mysqli_fetch_assoc($query)) {
+                                                if ((int)$row['available_day'] <= 0) {
+                                                    continue; // Skip if available_day is 0 or less
+                                                }
+
                                                 echo '<option value="' . $row['leave_type_id'] . '" 
                                                         data-available-days="' . $row['available_day'] . '" 
                                                         data-need-proof="' . $row['NeedProof'] . '">'
-                                                    . htmlentities($row['LeaveType']) . '- Available: ' . $row['available_day'] . ' days</option>';
+                                                    . htmlentities($row['LeaveType']) . ' - Available: ' . $row['available_day'] . ' days</option>';
                                             }
                                             ?>
                                         </select>
                                     </div>
-
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-md-6 col-sm-12">
                                     <div class="form-group">
