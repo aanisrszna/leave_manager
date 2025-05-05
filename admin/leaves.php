@@ -75,7 +75,7 @@ if (isset($_GET['delete'])) {
 							        tblleave.LeaveType, tblleave.PostingDate, tblleave.RegRemarks, tblleave.HodRemarks
 							        FROM tblleave
 							        JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
-							        ORDER BY tblleave.id DESC LIMIT 10";
+							        ORDER BY tblleave.id DESC";
 							$query = $dbh->prepare($sql);
 							$query->execute();
 							$results = $query->fetchAll(PDO::FETCH_OBJ);
