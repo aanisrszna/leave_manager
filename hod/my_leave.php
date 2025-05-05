@@ -63,7 +63,7 @@ if (isset($_GET['delete'])) {
 
 						<?php 
 						 $status=1;
-						 $query = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND HodRemarks = '$status'")or die(mysqli_error());
+						 $query = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND RegRemarks = '$status'")or die(mysqli_error());
 						 $count_reg_staff = mysqli_num_rows($query);
 						 ?>
 
@@ -83,7 +83,7 @@ if (isset($_GET['delete'])) {
 
 						<?php 
 						 $status=0;
-						 $query_pend = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND HodRemarks = '$status'")or die(mysqli_error());
+						 $query_pend = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND RegRemarks = '$status'")or die(mysqli_error());
 						 $count_pending = mysqli_num_rows($query_pend);
 						 ?>
 
@@ -103,7 +103,7 @@ if (isset($_GET['delete'])) {
 
 						<?php 
 						 $status=2;
-						 $query_reject = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND HodRemarks = '$status'")or die(mysqli_error());
+						 $query_reject = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND RegRemarks = '$status'")or die(mysqli_error());
 						 $count_reject = mysqli_num_rows($query_reject);
 						 ?>
 
