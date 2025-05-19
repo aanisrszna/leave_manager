@@ -56,10 +56,13 @@ function updateAvailableDays() {
 function getBusinessDateCount(startDate, endDate) {
     let count = 0;
     const currentDate = new Date(startDate);
+    const leaveTypeId = getSelectedLeaveTypeId();
+
+    const includeWeekends = (leaveTypeId === 6 || leaveTypeId === 7); // Maternity or Paternity Leave
 
     while (currentDate <= endDate) {
         const day = currentDate.getDay();
-        if (day !== 0 && day !== 6) {
+        if (includeWeekends || (day !== 0 && day !== 6)) {
             count++;
         }
         currentDate.setDate(currentDate.getDate() + 1);
@@ -67,6 +70,7 @@ function getBusinessDateCount(startDate, endDate) {
 
     return count;
 }
+
 
 function getMinBusinessDate(currentDate, businessDays) {
     let count = 0;
@@ -100,6 +104,11 @@ function toggleProofField() {
         proofContainer.style.display = 'none';
         proof.value = ""; // Clear file input when hiding
     }
+}
+function getSelectedLeaveTypeId() {
+    const leaveTypeSelect = document.getElementById('leave_type');
+    const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
+    return parseInt(selectedOption.value); // Ensure it returns the numeric ID
 }
 
 document.addEventListener("DOMContentLoaded", function () {

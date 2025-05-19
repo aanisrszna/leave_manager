@@ -305,6 +305,7 @@ if (isset($error_message)) {
                                                             continue; // Skip leave types with 0 or negative available days
                                                         }
                                                         echo '<option value="' . $row['LeaveType'] . '" 
+                                                                data-id="' . $row['id'] . '" 
                                                                 data-available-days="' . $row['available_day'] . '" 
                                                                 data-need-proof="' . $row['NeedProof'] . '">'
                                                             . htmlentities($row['LeaveType']) . ' - Available: ' . $row['available_day'] . ' days</option>';

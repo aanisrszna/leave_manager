@@ -13,7 +13,12 @@ function calc() {
 
     // Check if FromDate is at least 5 business days from today (excluding "Medical/Sick Leave")
     const minBusinessDate = getMinBusinessDate(currentDate, 5);
-    if (selectedLeaveType !== "Medical/Sick Leave" && startDate < minBusinessDate) {
+    if (
+    selectedLeaveType !== "Medical/Sick Leave" &&
+    selectedLeaveType !== "Medical/Sick Leave - Anis" &&
+    startDate < minBusinessDate
+    ) {
+
         alert("Leave application must be submitted at least 5 business days before the FromDate!");
         resetInputs();
         return;
@@ -24,7 +29,14 @@ function calc() {
         return;
     }
 
-    let requestedDays = getBusinessDateCount(startDate, endDate);
+    let requestedDays;
+    if (selectedLeaveType == "Maternity Leave" || selectedLeaveType == "Paternity Leave") {
+        // Include weekends
+        requestedDays = getCalendarDayCount(startDate, endDate);
+    } else {
+        // Business days only
+        requestedDays = getBusinessDateCount(startDate, endDate);
+    }
 
     // Adjust for half-day leave if applicable
     if (isHalfDay === '1') {
@@ -73,6 +85,17 @@ function getBusinessDateCount(startDate, endDate) {
 
     return count;
 }
+
+function getCalendarDayCount(startDate, endDate) {
+    let count = 0;
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        count++;
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return count;
+}
+
 
 function getMinBusinessDate(currentDate, businessDays) {
     let count = 0;
