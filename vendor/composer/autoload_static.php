@@ -31,6 +31,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         array (
             'setasign\\Fpdi\\' => 14,
         ),
+        'Z' => 
+        array (
+            'ZipStream\\' => 10,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php82\\' => 23,
@@ -46,11 +50,13 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Cache\\' => 10,
             'PhpOption\\' => 10,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
         'O' => 
@@ -76,6 +82,7 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
             'Microsoft\\Kiota\\Abstractions\\' => 29,
             'Microsoft\\Graph\\Core\\' => 21,
             'Microsoft\\Graph\\' => 16,
+            'Matrix\\' => 7,
         ),
         'L' => 
         array (
@@ -106,6 +113,8 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         'C' => 
         array (
             'Composer\\Semver\\' => 16,
+            'Composer\\Pcre\\' => 14,
+            'Complex\\' => 8,
         ),
         'B' => 
         array (
@@ -117,6 +126,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         'setasign\\Fpdi\\' => 
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
+        'ZipStream\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
         ),
         'Symfony\\Polyfill\\Php82\\' => 
         array (
@@ -146,6 +159,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         array (
             0 => __DIR__ . '/..' . '/ramsey/collection/src',
         ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
@@ -166,6 +183,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'PhpOffice\\PhpSpreadsheet\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
         ),
         'PHPMailer\\PHPMailer\\' => 
         array (
@@ -231,6 +252,10 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         array (
             0 => __DIR__ . '/..' . '/microsoft/microsoft-graph/src',
         ),
+        'Matrix\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
         'League\\OAuth2\\Client\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/oauth2-client/src',
@@ -278,6 +303,14 @@ class ComposerStaticInit6730ab9fa4f608424e695b92ba293e5b
         'Composer\\Semver\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/semver/src',
+        ),
+        'Composer\\Pcre\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/pcre/src',
+        ),
+        'Complex\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
         'Brick\\Math\\' => 
         array (

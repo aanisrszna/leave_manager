@@ -21,7 +21,6 @@ $malaysiaHolidays = [
     '2025-05-12' => ['Wesak Day', 'holiday'],
     '2025-06-02' => ['Agong\'s Birthday 🥳', 'holiday'],
     '2025-06-07' => ['Hari Raya Aidiladha 🐪', 'holiday'],
-    '2025-06-08' => ['Hari Raya Aidiladha 🐪', 'holiday'],
     '2025-06-27' => ['Awal Muharram 🕋', 'holiday'],
     '2025-08-31' => ['Merdeka Day 🎆', 'holiday'],
     '2025-09-05' => ['Maulidur Rasul 🕌', 'holiday'],

@@ -238,14 +238,21 @@
                 <h2 class="mb-2" style="font-size: 24px; font-weight: 600;">Employee Leave Information</h2> <!-- Smaller title with spacing -->
 
                 <!-- Add the PDF Generation Buttons -->
-                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;"> <!-- Added margin-top for spacing -->
-                    <form class="mb-4" method="POST" action="employee_report.php">
-                        <button type="submit" name="generate_pdf" class="btn btn-primary btn-sm">Generate PDF Report</button> <!-- Smaller button -->
+                <div style="display: flex; flex-direction: row; gap: 10px; align-items: center; margin-top: 10px;">
+                    <form method="POST" action="employee_report.php">
+                        <button type="submit" name="generate_pdf" class="btn btn-primary btn-sm">Staff Leave (PDF)</button>
                     </form>
-                    <!-- <form method="POST" action="bar_chart.php">
+                    <form method="POST" action="export_employees_excel.php">
+                        <button type="submit" class="btn btn-success btn-sm">Download Staff Data Excel</button>
+                    </form>
+
+                    <!--
+                    <form method="POST" action="bar_chart.php">
                         <button type="submit" name="generate_pdf" class="btn btn-success btn-sm">Bar Chart</button>
-                    </form> -->
+                    </form>
+                    -->
                 </div>
+
             </div>
 
 

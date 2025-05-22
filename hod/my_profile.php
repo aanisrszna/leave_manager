@@ -164,10 +164,7 @@ if (isset($_POST["update_image"])) {
 										<span>Phone Number:</span>
 										<?php echo $row['Phonenumber']; ?>
 									</li>
-									<li>
-										<span>My Role:</span>
-										<?php echo $row['role']; ?>
-									</li>
+
 									<li>
 										<span>Address:</span>
 										<?php echo $row['Address']; ?>
@@ -242,14 +239,14 @@ if (isset($_POST["update_image"])) {
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Date Of Birth</label>
-																<input name="dob" class="form-control form-control-lg date-picker" type="text" placeholder="" required="true" autocomplete="off" value="<?php echo $row['Dob']; ?>">
+																<input name="dob" class="form-control form-control-lg date-picker" type="text" placeholder="" required="true" autocomplete="off" value="<?php echo date('d/m/Y', strtotime($row['Dob'])); ?>">
 															</div>
 														</div>
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Gender</label>
 																<select name="gender" class="custom-select form-control" required="true" autocomplete="off">
-																<option value="<?php echo $row['Gender']; ?>"><?php echo $row['Gender']; ?></option>
+																	<option value="<?php echo $row['Gender']; ?>"><?php echo $row['Gender']; ?></option>
 																	<option value="male">Male</option>
 																	<option value="female">Female</option>
 																</select>
@@ -258,9 +255,10 @@ if (isset($_POST["update_image"])) {
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Date Joined</label>
-																<input name="date_joined" class="form-control form-control-lg date-picker" type="text" placeholder="" required="true" autocomplete="off" value="<?php echo $row['date_joined']; ?>">
+																<input name="date_joined" class="form-control form-control-lg date-picker" type="text" placeholder="" required="true" autocomplete="off" value="<?php echo date('d/m/Y', strtotime($row['date_joined'])); ?>">
 															</div>
 														</div>
+
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Service Year</label>

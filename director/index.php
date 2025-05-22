@@ -73,12 +73,18 @@
 						<div class="card-box height-100-p widget-style3">
 							<?php
 							$status = 0;
-							$sql = "SELECT id FROM tblleave WHERE RegRemarks=:status";
+							$hodStatus1 = 1;
+							$hodStatus2 = 3;
+							$sql = "SELECT id FROM tblleave WHERE (HodRemarks = :hodStatus1 OR HodRemarks = :hodStatus2) AND RegRemarks = :status";
 							$query = $dbh->prepare($sql);
-							$query->bindParam(':status', $status, PDO::PARAM_STR);
+							$query->bindParam(':hodStatus1', $hodStatus1, PDO::PARAM_INT);
+							$query->bindParam(':hodStatus2', $hodStatus2, PDO::PARAM_INT);
+							$query->bindParam(':status', $status, PDO::PARAM_INT);
 							$query->execute();
 							$leavecount = $query->rowCount();
 							?>
+
+
 							<div class="d-flex flex-wrap">
 								<div class="widget-data">
 									<div class="weight-700 font-24 text-dark"><?php echo $leavecount; ?></div>
@@ -226,9 +232,13 @@
 
                 <!-- Add the PDF Generation Buttons -->
                 <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;"> <!-- Added margin-top for spacing -->
-                    <form class="mb-4" method="POST" action="employee_report.php">
-                        <button type="submit" name="generate_pdf" class="btn btn-primary btn-sm">Generate PDF Report</button> <!-- Smaller button -->
+                    <form method="POST" action="employee_report.php">
+                        <button type="submit" name="generate_pdf" class="btn btn-primary btn-sm">Staff Leave (PDF)</button>
                     </form>
+                    <form method="POST" action="export_employees_excel.php">
+                        <button type="submit" class="btn btn-success btn-sm">Download Staff Data Excel</button>
+                    </form>
+
                     <!-- <form method="POST" action="bar_chart.php">
                         <button type="submit" name="generate_pdf" class="btn btn-success btn-sm">Bar Chart</button>
                     </form> -->

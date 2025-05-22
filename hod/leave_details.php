@@ -61,7 +61,7 @@ if (isset($_POST['update'])) {
         $subject = "Leave Application Rejected";
         $message = "            
 			<p>Dear $emp_name,</p>
-            <p>Your leave application has been <b>Rejected</b> by the HOD.</p>
+            <p>Your leave application has been <b>Rejected</b> by the Manager.</p>
             <table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%;'>
                 <tr><th align='left'>Leave Type</th><td>$leave_type</td></tr>
                 <tr><th align='left'>From</th><td>$date_from</td></tr>
@@ -98,7 +98,7 @@ if (isset($_POST['update'])) {
         $subject = "Leave Approval Notification";
         $message = "                    
 					<p>Dear Director,</p>
-					<p>$emp_name has applied for leave and it has been <b>Approved</b> by the HOD.</p>
+					<p>$emp_name has applied for leave and it has been <b>Approved</b> by the Manager.</p>
                     <table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%;'>
                     	<tr><th align='left'>Leave Type</th><td>$leave_type</td></tr>    
 						<tr><th align='left'>From</th><td>$date_from</td></tr>
@@ -455,8 +455,8 @@ if (isset($_POST['update'])) {
 												<h4 class="mb-20">Leave take action</h4>
 												<select name="status" required class="custom-select form-control">
 													<option value="">Choose your option</option>
-													<option value="1">Approved</option>
-													<option value="2">Rejected</option>
+													<option value="1">Approve</option>
+													<option value="2">Reject</option>
 												</select>
 											</div>
 											<div class="modal-footer justify-content-center">

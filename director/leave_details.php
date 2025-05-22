@@ -475,8 +475,8 @@ if (isset($_POST['update'])) {
 												<h4 class="mb-20">Leave take action</h4>
 												<select name="status" required class="custom-select form-control">
 													<option value="">Choose your option</option>
-													<option value="1">Approved</option>
-													<option value="2">Rejected</option>
+													<option value="1">Approve</option>
+													<option value="2">Reject</option>
 												</select>
 											</div>
 											<div class="modal-footer justify-content-center">

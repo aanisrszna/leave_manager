@@ -76,7 +76,7 @@ $leaveCountsMedicalJson = json_encode(array_values($leaveCountsMedical));
 ?>
 
 <div class="card-box height-100-p d-flex flex-column justify-content-center align-items-center">
-    <h5>Employees Leave <?php echo $currentYear; ?></h5>
+    <h5>Summary of Employees Leave Taken <?php echo $currentYear; ?></h5>
     <div class="chart-container">
         <?php if (!empty($employees)): ?>
             <canvas id="approvedLeaveBarChart"></canvas>

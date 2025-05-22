@@ -85,6 +85,12 @@
 							<span class="mtext"> Visit Us</span>
 						</a>
 					</li>
+					<li>
+						<a href="organization.php" class="dropdown-toggle no-arrow">
+							<span class="micon dw dw-paper-plane1"></span>
+							<span class="mtext">Organization</span>
+						</a>
+					</li>
 				</ul>
 			</div>
 		</div>

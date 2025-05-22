@@ -3,7 +3,8 @@
         "phpmailer/phpmailer": "*",
         "microsoft/microsoft-graph": "*",
         "vlucas/phpdotenv": "*",
-        "setasign/fpdi": "^2.6"
+        "setasign/fpdi": "^2.6",
+        "phpoffice/phpspreadsheet": "^4.2"
     },
     "config": {
         "allow-plugins": {

@@ -129,8 +129,8 @@ if (isset($_GET['delete'])) {
 						<thead>
 							<tr>
 								<th class="table-plus">LEAVE TYPE</th>
-								<th>DATE FROM</th>
-								<th>DATE TO</th>
+								<th>FROM</th>
+								<th>TO</th>
 								<th>NO. OF DAYS</th>
 								<th>MANAGER STATUS</th>
 								<th>DIRECTOR STATUS</th>
@@ -138,68 +138,56 @@ if (isset($_GET['delete'])) {
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								
-								 <?php 
-                                    $sql = "SELECT * from tblleave where empid = '$session_id'";
-                                    $query = $dbh -> prepare($sql);
-                                    $query->execute();
-                                    $results=$query->fetchAll(PDO::FETCH_OBJ);
-                                    $cnt=1;
-                                    if($query->rowCount() > 0)
-                                    {
-                                    foreach($results as $result)
-                                    {               ?>  
-
-								  <td><?php echo htmlentities($result->LeaveType);?></td>
-                                  <td><?php echo htmlentities($result->FromDate);?></td>
-                                  <td><?php echo htmlentities($result->ToDate);?></td>
-                                  <td><?php echo htmlentities($result->RequestedDays);?></td>
-                                  <td><?php $stats=$result->HodRemarks;
-                                       if($stats==1){
-                                        ?>
-                                           <span style="color: green">Approved</span>
-                                            <?php }  if($stats==3)  { ?>
-                                           <span style="color: grey">NA</span>
-                                            <?php } if($stats==2)  { ?>
-                                           <span style="color: red">Not Approved</span>
-                                            <?php } if($stats==0)  { ?>
-	                                       <span style="color: blue">Pending</span>
-	                                       <?php } ?>
-
-                                    </td>
-                                    <td><?php $stats=$result->RegRemarks;
-                                       if($stats==1){
-                                        ?>
-                                           <span style="color: green">Approved</span>
-                                            <?php } if($stats==2)  { ?>
-                                           <span style="color: red">Not Approved</span>
-                                            <?php } if($stats==0)  { ?>
-	                                       <span style="color: blue">Pending</span>
-	                                       <?php } ?>
-
-                                    </td>
-									<td>
-										<div class="dropdown">
-											<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-												<i class="dw dw-more"></i>
-											</a>
-											<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-							
-												<a class="dropdown-item" href="view_leaves.php?edit=<?php echo htmlentities($result->id); ?>"><i class="dw dw-eye"></i> View</a>
-												<?php if ($result->RegRemarks == 0): ?>
-													<a class="dropdown-item" href="my_leave.php?delete=<?php echo htmlentities($result->id); ?>" onclick="return confirm('Are you sure you want to withdraw this leave?');"><i class="dw dw-delete-3"></i> Delete</a>
-												<?php endif; ?>
+							<?php 
+							$sql = "SELECT * FROM tblleave WHERE empid = '$session_id' ORDER BY PostingDate DESC";
+							$query = $dbh->prepare($sql);
+							$query->execute();
+							$results = $query->fetchAll(PDO::FETCH_OBJ);
+							$cnt = 1;
+							if ($query->rowCount() > 0) {
+								foreach ($results as $result) { ?>  
+									<tr>
+										<td><?php echo htmlentities($result->LeaveType);?></td>
+										<td><?php echo htmlentities($result->FromDate);?></td>
+										<td><?php echo htmlentities($result->ToDate);?></td>
+										<td><?php echo htmlentities($result->RequestedDays);?></td>
+										<td>
+											<?php 
+											$stats = $result->HodRemarks;
+											if ($stats == 1) echo '<span style="color: green">Approved</span>';
+											elseif ($stats == 2) echo '<span style="color: red">Not Approved</span>';
+											elseif ($stats == 3) echo '<span style="color: grey">NA</span>';
+											else echo '<span style="color: blue">Pending</span>';
+											?>
+										</td>
+										<td>
+											<?php 
+											$stats = $result->RegRemarks;
+											if ($stats == 1) echo '<span style="color: green">Approved</span>';
+											elseif ($stats == 2) echo '<span style="color: red">Not Approved</span>';
+											else echo '<span style="color: blue">Pending</span>';
+											?>
+										</td>
+										<td>
+											<div class="dropdown">
+												<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+													<i class="dw dw-more"></i>
+												</a>
+												<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+													<a class="dropdown-item" href="view_leaves.php?edit=<?php echo htmlentities($result->id); ?>"><i class="dw dw-eye"></i> View</a>
+													<?php if ($result->RegRemarks == 0): ?>
+														<a class="dropdown-item" href="my_leave.php?delete=<?php echo htmlentities($result->id); ?>" onclick="return confirm('Are you sure you want to withdraw this leave?');"><i class="dw dw-delete-3"></i> Delete</a>
+													<?php endif; ?>
+												</div>
 											</div>
-										</div>
-									</td>
-								   <!-- <td>
-									  <div class="table-actions">
-										<a title="VIEW" href="view_leaves.php?edit=<?php echo htmlentities($result->id);?>" data-color="#265ed7"><i class="icon-copy dw dw-eye"></i></a>
-									  </div>
-								   </td> -->
-							</tr>
-							<?php $cnt++;} }?>  
+										</td>
+									</tr>
+							<?php 
+								} 
+							}
+							?>
+
+							
 						</tbody>
 					</table>
 			   </div>

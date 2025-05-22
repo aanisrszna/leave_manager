@@ -53,19 +53,23 @@ if (isset($_GET['staff_id'])) {
                                                 <div class="col-md-6">
                                                     <p><strong>Email:</strong> <?php echo htmlentities($employee['EmailId']); ?></p>
                                                     <p><strong>Phone Number:</strong> <?php echo htmlentities($employee['Phonenumber']); ?></p>
-                                                    <p><strong>Date of Birth:</strong> <?php echo htmlentities($employee['Dob']); ?></p>
+                                                    <p><strong>Date of Birth:</strong> 
+                                                        <?php echo htmlentities(date('d/m/Y', strtotime($employee['Dob']))); ?>
+                                                    </p>
                                                     <p><strong>Gender:</strong> <?php echo htmlentities($employee['Gender']); ?></p>
                                                     <p><strong>Address:</strong> <?php echo htmlentities($employee['Address']); ?></p>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <p><strong>Staff ID:</strong> <?php echo htmlentities($employee['Staff_ID']); ?></p>
-
                                                     <p><strong>Role:</strong> <?php echo htmlentities($employee['role']); ?></p>
-                                                    <p><strong>Date Joined:</strong> <?php echo htmlentities($employee['date_joined']); ?></p>
+                                                    <p><strong>Date Joined:</strong> 
+                                                        <?php echo htmlentities(date('d/m/Y', strtotime($employee['date_joined']))); ?>
+                                                    </p>
                                                     <p><strong>Car Plate:</strong> <?php echo htmlentities($employee['Car_Plate']); ?></p>
                                                     <p><strong>Reporting To:</strong> <?php echo htmlentities($employee['Reporting_To']); ?></p>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>

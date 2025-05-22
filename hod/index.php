@@ -12,7 +12,7 @@
 
 	<div class="main-container">
 		<div class="pd-ltr-20">
-		<div class="title pb-20">
+			<div class="title pb-20">
                 <h2 class="h3 mb-0">Leave Entitlement</h2>
             </div>
 
@@ -178,23 +178,35 @@
 					</div>
 
 					<!-- Pending Leave -->
+<!-- Pending Leave -->
 					<div class="mb-3">
 						<div class="card-box height-100-p widget-style3">
 
 							<?php
-							$status = 0;
-							$excludedRoles = ['manager', 'admin']; // Exclude both Manager and Admin
+							// Ensure session ID is safe
+							$session_id = mysqli_real_escape_string($conn, $session_id);
 
+							// Fetch current user's department
+							$sql = "SELECT Department FROM tblemployees WHERE emp_id = :session_id";
+							$query = $dbh->prepare($sql);
+							$query->bindParam(':session_id', $session_id, PDO::PARAM_STR);
+							$query->execute();
+							$userData = $query->fetch(PDO::FETCH_ASSOC);
+							$userDepartment = $userData['Department'];
+
+							// Count pending leaves within the same department and not from manager/admin
+							$status = 0;
 							$sql = "SELECT l.id 
 									FROM tblleave l
 									INNER JOIN tblemployees e ON l.empid = e.emp_id 
 									WHERE l.HodRemarks = :status 
-									AND e.role NOT IN ('manager', 'admin')"; // Exclude both roles
+									AND e.role NOT IN ('manager', 'admin')
+									AND e.Department = :dept";
 
 							$query = $dbh->prepare($sql);
-							$query->bindParam(':status', $status, PDO::PARAM_INT); // Use INT for numerical values
+							$query->bindParam(':status', $status, PDO::PARAM_INT);
+							$query->bindParam(':dept', $userDepartment, PDO::PARAM_STR);
 							$query->execute();
-							$results = $query->fetchAll(PDO::FETCH_OBJ);
 							$leavecount = $query->rowCount();
 							?>
 
