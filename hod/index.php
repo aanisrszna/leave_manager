@@ -213,7 +213,7 @@
 							<div class="d-flex flex-wrap">
 								<div class="widget-data">
 									<div class="weight-700 font-24 text-dark"><?php echo $leavecount; ?></div>
-									<div class="font-14 text-secondary weight-500">Manager Pending</div>
+									<div class="font-14 text-secondary weight-500">Pending Leave</div>
 								</div>
 								<div class="widget-icon">
 									<div class="icon"><i class="icon-copy fa fa-hourglass-end" aria-hidden="true"></i></div>

@@ -2,28 +2,59 @@
 <?php include('../includes/session.php')?>
 <?php
 if (isset($_GET['delete'])) {
-
     $delete = $_GET['delete'];
-    
-    // Secure deletion with prepared statements
-    $sql = "DELETE FROM tblleave WHERE id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
 
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "i", $delete);
-        $result = mysqli_stmt_execute($stmt);
-        
-        if ($result) {
-            echo "<script>alert('Leave record deleted successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'leaves.php'; </script>";
-        } else {
-            echo "<script>alert('Error deleting record');</script>";
-        }
+    // Step 1: Get RequestedDays, empid, and LeaveType (as name)
+    $query = "SELECT RequestedDays, empid, LeaveType FROM tblleave WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $delete);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $requestedDays, $empid, $leaveType);
 
+    if (mysqli_stmt_fetch($stmt)) {
         mysqli_stmt_close($stmt);
+
+        // Step 2: Get leave_type_id from tblleavetype where LeaveType matches
+        $getLeaveTypeIdSql = "SELECT id FROM tblleavetype WHERE LeaveType = ?";
+        $stmt_type = mysqli_prepare($conn, $getLeaveTypeIdSql);
+        mysqli_stmt_bind_param($stmt_type, "s", $leaveType);
+        mysqli_stmt_execute($stmt_type);
+        mysqli_stmt_bind_result($stmt_type, $leaveTypeId);
+
+        if (mysqli_stmt_fetch($stmt_type)) {
+            mysqli_stmt_close($stmt_type);
+
+            // Step 3: Update employee_leave.available_day
+            $update = "UPDATE employee_leave 
+                       SET available_day = available_day + ? 
+                       WHERE emp_id = ? AND leave_type_id = ?";
+            $stmt_update = mysqli_prepare($conn, $update);
+            mysqli_stmt_bind_param($stmt_update, "dii", $requestedDays, $empid, $leaveTypeId);
+            mysqli_stmt_execute($stmt_update);
+            mysqli_stmt_close($stmt_update);
+
+            // Step 4: Delete from tblleave
+            $deleteSql = "DELETE FROM tblleave WHERE id = ?";
+            $stmt_delete = mysqli_prepare($conn, $deleteSql);
+            mysqli_stmt_bind_param($stmt_delete, "i", $delete);
+            $result = mysqli_stmt_execute($stmt_delete);
+            mysqli_stmt_close($stmt_delete);
+
+            if ($result) {
+                echo "<script>alert('Leave record deleted and available days updated successfully');</script>";
+                echo "<script type='text/javascript'> document.location = 'leaves.php'; </script>";
+            } else {
+                echo "<script>alert('Error deleting leave record');</script>";
+            }
+        } else {
+            echo "<script>alert('Leave type not found in tblleavetype');</script>";
+        }
+    } else {
+        echo "<script>alert('Leave record not found');</script>";
     }
 }
 ?>
+
 
 <body>
 
