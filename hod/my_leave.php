@@ -131,7 +131,7 @@ if (isset($_GET['delete'])) {
 								<th class="table-plus">LEAVE TYPE</th>
 								<th>FROM</th>
 								<th>TO</th>
-								<th>NO. OF DAYS</th>
+								<th>DAYS</th>
 								<th>MANAGER STATUS</th>
 								<th>DIRECTOR STATUS</th>
 								<th class="datatable-nosort">ACTION</th>
@@ -148,8 +148,9 @@ if (isset($_GET['delete'])) {
 								foreach ($results as $result) { ?>  
 									<tr>
 										<td><?php echo htmlentities($result->LeaveType);?></td>
-										<td><?php echo htmlentities($result->FromDate);?></td>
-										<td><?php echo htmlentities($result->ToDate);?></td>
+									<td><?php echo htmlentities(date('d/m/Y', strtotime($result->FromDate))); ?></td>
+									<td><?php echo htmlentities(date('d/m/Y', strtotime($result->ToDate))); ?></td>
+
 										<td><?php echo htmlentities($result->RequestedDays);?></td>
 										<td>
 											<?php 

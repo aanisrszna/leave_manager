@@ -150,8 +150,9 @@ if (isset($_GET['delete'])) {
 									foreach ($results as $result) { ?>  
 
 										<td><?php echo htmlentities($result->LeaveType);?></td>
-										<td><?php echo htmlentities($result->FromDate);?></td>
-										<td><?php echo htmlentities($result->ToDate);?></td>
+										<td><?php echo htmlentities(date("d/m/Y", strtotime($result->FromDate))); ?></td>
+										<td><?php echo htmlentities(date("d/m/Y", strtotime($result->ToDate))); ?></td>
+
 										<td><?php echo htmlentities($result->RequestedDays);?></td>
 										<td>
 											<?php 

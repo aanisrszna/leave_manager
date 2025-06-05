@@ -64,7 +64,8 @@
 									</div>
 								</td>
 								<td><?php echo $row['LeaveType']; ?></td>
-	                            <td><?php echo $row['PostingDate']; ?></td>
+	                            <td><?php echo date('d/m/Y', strtotime($row['PostingDate'])); ?></td>
+
 								<td><?php $stats=$row['HodRemarks'];
 	                             if($stats==1){
 	                              ?>

@@ -276,7 +276,7 @@
                         <a href="staff_profile.php?staff_id=<?php echo urlencode($employee->emp_id); ?>" style="text-decoration: none;">
                             <div class='card-box height-100-p widget-style3' style="cursor: pointer;">
                                 <div class='d-flex justify-content-center align-items-center' 
-                                    style='background-color:rgb(70, 142, 209); color: white; padding: 8px;'>
+                                    style='background-color:rgb(128, 179, 226); color: white; padding: 8px;'>
                                     <h6 class='mb-0' style='font-size: 14px; font-weight: 500; text-align: center;'>
                                         <?php echo htmlentities($employee->FirstName); ?> (ID: <?php echo htmlentities($employee->Staff_ID); ?>)
                                         <br><span>Reporting To: <?php echo htmlentities($employee->Reporting_To); ?></span>

@@ -212,9 +212,11 @@ if (isset($_POST['update'])) {
 							<div class="col-md-4 col-sm-12">
 								<div class="form-group">
 									<label style="font-size:16px;"><b>Applied Date</b></label>
-									<input type="text" class="selectpicker form-control" data-style="btn-outline-success" readonly value="<?php echo htmlentities($result->PostingDate);?>">
+									<input type="text" class="selectpicker form-control" data-style="btn-outline-success" readonly 
+										value="<?php echo date('d/m/Y', strtotime($result->PostingDate)); ?>">
 								</div>
 							</div>
+
 
 							<div class="col-md-4 col-sm-12">
 								<div class="form-group">
@@ -231,7 +233,8 @@ if (isset($_POST['update'])) {
 							<div class="col-md-4">
 								<div class="form-group">
 									<label style="font-size:16px;"><b>Leave Period</b></label>
-									<input type="text" class="selectpicker form-control" data-style="btn-outline-info" readonly value="From <?php echo htmlentities($result->FromDate);?> to <?php echo htmlentities($result->ToDate);?>">
+									<input type="text" class="selectpicker form-control" data-style="btn-outline-info" readonly 
+										value="From <?php echo date('d/m/Y', strtotime($result->FromDate)); ?> to <?php echo date('d/m/Y', strtotime($result->ToDate)); ?>">
 								</div>
 							</div>
 
@@ -323,32 +326,39 @@ if (isset($_POST['update'])) {
 						</div>
 						<div class="form-group row">
 							<div class="col-md-6 col-sm-12">
-							    <div class="form-group">
+								<div class="form-group">
 									<label style="font-size:16px;"><b>Date For Manager's Action</b></label>
 									<?php
-									if ($result->HodDate==""): ?>
-									  <input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo "NA"; ?>">
-									<?php else: ?>
-									  <div class="avatar mr-2 flex-shrink-0">
-										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo htmlentities($result->HodDate); ?>">
-									  </div>
+									if ($result->HodDate == ""): ?>
+										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="NA">
+									<?php else:
+										$hodDate = DateTime::createFromFormat('Y-m-d', $result->HodDate);
+										$formattedHodDate = $hodDate ? $hodDate->format('d/m/Y') : htmlentities($result->HodDate);
+									?>
+										<div class="avatar mr-2 flex-shrink-0">
+											<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo $formattedHodDate; ?>">
+										</div>
 									<?php endif ?>
-							    </div>
+								</div>
 							</div>
 							<div class="col-md-6 col-sm-12">
 								<div class="form-group">
 									<label style="font-size:16px;"><b>Date For Director's Action</b></label>
 									<?php
-									if ($result->RegDate==""): ?>
-									  <input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo "NA"; ?>">
-									<?php else: ?>
-									  <div class="avatar mr-2 flex-shrink-0">
-										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo htmlentities($result->RegDate); ?>">
-									  </div>
+									if ($result->RegDate == ""): ?>
+										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="NA">
+									<?php else:
+										$regDate = DateTime::createFromFormat('Y-m-d', $result->RegDate);
+										$formattedRegDate = $regDate ? $regDate->format('d/m/Y') : htmlentities($result->RegDate);
+									?>
+										<div class="avatar mr-2 flex-shrink-0">
+											<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo $formattedRegDate; ?>">
+										</div>
 									<?php endif ?>
 								</div>
 							</div>
 						</div>
+
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">

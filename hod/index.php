@@ -312,7 +312,8 @@
 									</div>
 								</td>
 								<td><?php echo htmlentities($result->LeaveType);?></td>
-								<td><?php echo htmlentities($result->PostingDate);?></td>
+								<td><?php echo htmlentities(date('d/m/Y', strtotime($result->PostingDate))); ?></td>
+
 								<td>
 									<?php 
 									$stats = $result->HodRemarks;

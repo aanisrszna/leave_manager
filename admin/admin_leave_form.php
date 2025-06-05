@@ -126,7 +126,7 @@ if (isset($_POST['apply'])) {
 
         $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];
 
-        if (in_array($fileType, $allowedTypes) && $_FILES['proof']['size'] <= 10 * 1024 * 1024) {
+        if (in_array($fileType, $allowedTypes) && $_FILES['proof']['size'] <= 100 * 1024 * 1024) {
             // Create unique filename
             $newFileName = time() . '_' . preg_replace('/\s+/', '_', $originalName);
             $targetFilePath = $uploadDir . $newFileName;
@@ -137,7 +137,7 @@ if (isset($_POST['apply'])) {
                 die('❌ Failed to upload proof file.');
             }
         } else {
-            die('❌ Invalid file type or size exceeds 10MB.');
+            die('❌ Invalid file type or size exceeds 100MB.');
         }
     }
 
@@ -441,7 +441,7 @@ if (isset($_POST['apply'])) {
                                                 Browse
                                                 <input type="file" name="proof" id="proof" accept=".pdf, .jpg, .jpeg, .png">
                                             </div>
-                                            <span class="j-hint">Only: pdf, jpg, jpeg, png, less than 10MB</span>
+                                            <span class="j-hint">Only: pdf, jpg, jpeg, png, less than 100MB</span>
                                         </div>
                                     </div>
                                 </div>

@@ -48,8 +48,9 @@ if (isset($_POST['update'])) {
     $available_day = $row['available_day'];
     $requested_days = $row['RequestedDays'];
     $leave_type = $row['LeaveType'];
-    $date_from = $row['FromDate'];
-    $date_to = $row['ToDate'];
+	$date_from = date("d/m/Y", strtotime($row['FromDate']));
+	$date_to = date("d/m/Y", strtotime($row['ToDate']));
+
     $reason = $row['reason'];
     $leave_type_id = $row['leave_type_id'];
     $emp_id = $row['empid'];
@@ -283,7 +284,8 @@ if (isset($_POST['update'])) {
 							<div class="col-md-4">
 								<div class="form-group">
 									<label style="font-size:16px;"><b>Leave Period</b></label>
-									<input type="text" class="selectpicker form-control" data-style="btn-outline-info" readonly value="From <?php echo htmlentities($result->FromDate);?> to <?php echo htmlentities($result->ToDate);?>">
+									<input type="text" class="selectpicker form-control" data-style="btn-outline-info" readonly 
+									    value="From <?php echo date('d/m/Y', strtotime($result->FromDate)); ?> to <?php echo date('d/m/Y', strtotime($result->ToDate)); ?>">
 								</div>
 							</div>
 
@@ -298,7 +300,8 @@ if (isset($_POST['update'])) {
 							<div class="col-md-6 col-sm-12">
 								<div class="form-group">
 									<label style="font-size:16px;"><b>Applied Date</b></label>
-									<input type="text" class="selectpicker form-control" data-style="btn-outline-success" readonly value="<?php echo htmlentities($result->PostingDate);?>">
+									<input type="text" class="selectpicker form-control" data-style="btn-outline-success" readonly 
+										value="<?php echo date('d/m/Y', strtotime($result->PostingDate)); ?>">
 								</div>
 							</div>
 
@@ -380,27 +383,27 @@ if (isset($_POST['update'])) {
 							<div class="col-md-6 col-sm-12">
 							    <div class="form-group">
 									<label style="font-size:16px;"><b>Date For Manager's Action</b></label>
-									<?php
-									if ($result->HodDate==""): ?>
-									  <input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo "NA"; ?>">
+									<?php if ($result->HodDate == ""): ?>
+									<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="NA">
 									<?php else: ?>
-									  <div class="avatar mr-2 flex-shrink-0">
-										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo htmlentities($result->HodDate); ?>">
-									  </div>
-									<?php endif ?>
+									<div class="avatar mr-2 flex-shrink-0">
+										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly 
+										value="<?php echo date('d/m/Y', strtotime($result->HodDate)); ?>">
+									</div>
+									<?php endif; ?>
 							    </div>
 							</div>
 							<div class="col-md-6 col-sm-12">
 								<div class="form-group">
 									<label style="font-size:16px;"><b>Date For Director's Action</b></label>
-									<?php
-									if ($result->RegDate==""): ?>
-									  <input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo "NA"; ?>">
+									<?php if ($result->RegDate == ""): ?>
+									<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="NA">
 									<?php else: ?>
-									  <div class="avatar mr-2 flex-shrink-0">
-										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly value="<?php echo htmlentities($result->RegDate); ?>">
-									  </div>
-									<?php endif ?>
+									<div class="avatar mr-2 flex-shrink-0">
+										<input type="text" class="selectpicker form-control" data-style="btn-outline-primary" readonly 
+										value="<?php echo date('d/m/Y', strtotime($result->RegDate)); ?>">
+									</div>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
