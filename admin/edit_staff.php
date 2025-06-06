@@ -240,14 +240,17 @@ if (isset($_POST['update_staff'])) {
                                 <div class="col-md-4 col-sm-12">
                                     <div class="form-group">
                                         <label>Department :</label>
-                                        <select name="department" class="custom-select form-control" required>
-                                            <?php
+                                            <select name="department" class="custom-select form-control" required>
+                                                <?php
+                                                $userDept = $row['Department'];  // Get current user's department from DB
                                                 $query_dept = mysqli_query($conn, "SELECT * FROM tbldepartments");
                                                 while ($dept_row = mysqli_fetch_array($query_dept)) {
-                                                    echo "<option value='" . $dept_row['DepartmentShortName'] . "'>" . $dept_row['DepartmentName'] . "</option>";
+                                                    $selected = ($dept_row['DepartmentShortName'] == $userDept) ? "selected" : "";
+                                                    echo "<option value='" . $dept_row['DepartmentShortName'] . "' $selected>" . $dept_row['DepartmentName'] . "</option>";
                                                 }
-                                            ?>
-                                        </select>
+                                                ?>
+                                            </select>
+
                                     </div>
                                 </div>
                             </div>

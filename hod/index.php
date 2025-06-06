@@ -153,101 +153,113 @@
 
 					<!-- Approved Leave -->
 					<div class="mb-3">
-						<div class="card-box height-100-p widget-style3">
+						<a href="approve_leaves.php" style="text-decoration: none; color: inherit;">
+							<div class="card-box height-100-p widget-style3">
+								<?php
+								$status=1;
+								$sql = "SELECT id from tblleave where HodRemarks=:status";
+								$query = $dbh->prepare($sql);
+								$query->bindParam(':status', $status, PDO::PARAM_STR);
+								$query->execute();
+								$results = $query->fetchAll(PDO::FETCH_OBJ);
+								$leavecount = $query->rowCount();
+								?>        
 
-							<?php
-							$status=1;
-							$sql = "SELECT id from tblleave where HodRemarks=:status";
-							$query = $dbh -> prepare($sql);
-							$query->bindParam(':status',$status,PDO::PARAM_STR);
-							$query->execute();
-							$results=$query->fetchAll(PDO::FETCH_OBJ);
-							$leavecount=$query->rowCount();
-							?>        
-
-							<div class="d-flex flex-wrap">
-								<div class="widget-data">
-									<div class="weight-700 font-24 text-dark"><?php echo htmlentities($leavecount); ?></div>
-									<div class="font-14 text-secondary weight-500">Approved Leave</div>
-								</div>
-								<div class="widget-icon">
-									<div class="icon" data-color="#09cc06"><span class="icon-copy fa fa-hourglass"></span></div>
+								<div class="d-flex flex-wrap">
+									<div class="widget-data">
+										<div class="weight-700 font-24 text-dark"><?php echo htmlentities($leavecount); ?></div>
+										<div class="font-14 text-secondary weight-500">Approved Leave</div>
+									</div>
+									<div class="widget-icon">
+										<div class="icon" data-color="#09cc06">
+											<span class="icon-copy fa fa-hourglass"></span>
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
+						</a>
 					</div>
+
 
 					<!-- Pending Leave -->
 <!-- Pending Leave -->
 					<div class="mb-3">
-						<div class="card-box height-100-p widget-style3">
+						<a href="pending_leaves.php" style="text-decoration: none; color: inherit;">
+							<div class="card-box height-100-p widget-style3">
 
-							<?php
-							// Ensure session ID is safe
-							$session_id = mysqli_real_escape_string($conn, $session_id);
+								<?php
+								// Ensure session ID is safe
+								$session_id = mysqli_real_escape_string($conn, $session_id);
 
-							// Fetch current user's department
-							$sql = "SELECT Department FROM tblemployees WHERE emp_id = :session_id";
-							$query = $dbh->prepare($sql);
-							$query->bindParam(':session_id', $session_id, PDO::PARAM_STR);
-							$query->execute();
-							$userData = $query->fetch(PDO::FETCH_ASSOC);
-							$userDepartment = $userData['Department'];
+								// Fetch current user's department
+								$sql = "SELECT Department FROM tblemployees WHERE emp_id = :session_id";
+								$query = $dbh->prepare($sql);
+								$query->bindParam(':session_id', $session_id, PDO::PARAM_STR);
+								$query->execute();
+								$userData = $query->fetch(PDO::FETCH_ASSOC);
+								$userDepartment = $userData['Department'];
 
-							// Count pending leaves within the same department and not from manager/admin
-							$status = 0;
-							$sql = "SELECT l.id 
-									FROM tblleave l
-									INNER JOIN tblemployees e ON l.empid = e.emp_id 
-									WHERE l.HodRemarks = :status 
-									AND e.role NOT IN ('manager', 'admin')
-									AND e.Department = :dept";
+								// Count pending leaves within the same department and not from manager/admin
+								$status = 0;
+								$sql = "SELECT l.id 
+										FROM tblleave l
+										INNER JOIN tblemployees e ON l.empid = e.emp_id 
+										WHERE l.HodRemarks = :status 
+										AND e.role NOT IN ('manager', 'admin')
+										AND e.Department = :dept";
 
-							$query = $dbh->prepare($sql);
-							$query->bindParam(':status', $status, PDO::PARAM_INT);
-							$query->bindParam(':dept', $userDepartment, PDO::PARAM_STR);
-							$query->execute();
-							$leavecount = $query->rowCount();
-							?>
+								$query = $dbh->prepare($sql);
+								$query->bindParam(':status', $status, PDO::PARAM_INT);
+								$query->bindParam(':dept', $userDepartment, PDO::PARAM_STR);
+								$query->execute();
+								$leavecount = $query->rowCount();
+								?>
 
-							<div class="d-flex flex-wrap">
-								<div class="widget-data">
-									<div class="weight-700 font-24 text-dark"><?php echo $leavecount; ?></div>
-									<div class="font-14 text-secondary weight-500">Pending Leave</div>
+								<div class="d-flex flex-wrap">
+									<div class="widget-data">
+										<div class="weight-700 font-24 text-dark"><?php echo $leavecount; ?></div>
+										<div class="font-14 text-secondary weight-500">Pending Leave</div>
+									</div>
+									<div class="widget-icon">
+										<div class="icon"><i class="icon-copy fa fa-hourglass-end" aria-hidden="true"></i></div>
+									</div>
 								</div>
-								<div class="widget-icon">
-									<div class="icon"><i class="icon-copy fa fa-hourglass-end" aria-hidden="true"></i></div>
-								</div>
+
 							</div>
-
-						</div>
+						</a>
 					</div>
+
 
 					<!-- Rejected Leave -->
 					<div>
-						<div class="card-box height-100-p widget-style3">
+						<a href="reject_leaves.php" style="text-decoration: none; color: inherit;">
+							<div class="card-box height-100-p widget-style3">
 
-							<?php
-							$status=2;
-							$sql = "SELECT id from tblleave where HodRemarks=:status";
-							$query = $dbh -> prepare($sql);
-							$query->bindParam(':status',$status,PDO::PARAM_STR);
-							$query->execute();
-							$results=$query->fetchAll(PDO::FETCH_OBJ);
-							$leavecount=$query->rowCount();
-							?>  
+								<?php
+								$status = 2;
+								$sql = "SELECT id FROM tblleave WHERE HodRemarks = :status";
+								$query = $dbh->prepare($sql);
+								$query->bindParam(':status', $status, PDO::PARAM_STR);
+								$query->execute();
+								$results = $query->fetchAll(PDO::FETCH_OBJ);
+								$leavecount = $query->rowCount();
+								?>  
 
-							<div class="d-flex flex-wrap">
-								<div class="widget-data">
-									<div class="weight-700 font-24 text-dark"><?php echo($leavecount); ?></div>
-									<div class="font-14 text-secondary weight-500">Rejected Leave</div>
-								</div>
-								<div class="widget-icon">
-									<div class="icon" data-color="#ff5b5b"><i class="icon-copy fa fa-hourglass-o" aria-hidden="true"></i></div>
+								<div class="d-flex flex-wrap">
+									<div class="widget-data">
+										<div class="weight-700 font-24 text-dark"><?php echo($leavecount); ?></div>
+										<div class="font-14 text-secondary weight-500">Rejected Leave</div>
+									</div>
+									<div class="widget-icon">
+										<div class="icon" data-color="#ff5b5b">
+											<i class="icon-copy fa fa-hourglass-o" aria-hidden="true"></i>
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
+						</a>
 					</div>
+
 				</div>
 
 				<!-- Right Column - Two Pie Charts Side by Side -->
