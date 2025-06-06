@@ -58,7 +58,7 @@ while ($row = mysqli_fetch_array($leaveQuery)) {
 
             // Append multiple names if the date already exists
             if (isset($leaveDates[$formattedDate])) {
-                $leaveDates[$formattedDate][0] .= ", " . $row['LastName'] . " 🌊";
+                $leaveDates[$formattedDate][0] .= ", " . $row['LastName'] . "🏖️";
             } else {
                 $leaveDates[$formattedDate] = [$row['LastName'] . "🏖️", 'leave'];
             }
