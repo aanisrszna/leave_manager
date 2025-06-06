@@ -60,7 +60,7 @@ while ($row = mysqli_fetch_array($leaveQuery)) {
             if (isset($leaveDates[$formattedDate])) {
                 $leaveDates[$formattedDate][0] .= ", " . $row['LastName'] . " 🌊";
             } else {
-                $leaveDates[$formattedDate] = [$row['LastName'] . " 🌊", 'leave'];
+                $leaveDates[$formattedDate] = [$row['LastName'] . "🏖️", 'leave'];
             }
 
             $fromDate->modify('+1 day');
