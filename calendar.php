@@ -1,5 +1,5 @@
 <?php
-// Database connection (make sure $conn is defined before this)
+// Database connection
 
 // Get the selected month (default to current month)
 $currentMonth = isset($_GET['month']) ? intval($_GET['month']) : date('n');
@@ -55,11 +55,14 @@ while ($row = mysqli_fetch_array($leaveQuery)) {
         $toDate = new DateTime($row['ToDate']);
         while ($fromDate <= $toDate) {
             $formattedDate = $fromDate->format('Y-m-d');
+
+            // Append multiple names if the date already exists
             if (isset($leaveDates[$formattedDate])) {
                 $leaveDates[$formattedDate][0] .= ", " . $row['LastName'] . "🏖️";
             } else {
                 $leaveDates[$formattedDate] = [$row['LastName'] . "🏖️", 'leave'];
             }
+
             $fromDate->modify('+1 day');
         }
     }
@@ -70,7 +73,7 @@ $calendarEvents = $malaysiaHolidays;
 
 foreach ($birthdays as $date => $event) {
     if (isset($calendarEvents[$date])) {
-        $calendarEvents[$date][0] .= "," . $event[0];
+        $calendarEvents[$date][0] .= "," . $event[0]; // Append birthday to holiday or leave
     } else {
         $calendarEvents[$date] = $event;
     }
@@ -78,7 +81,7 @@ foreach ($birthdays as $date => $event) {
 
 foreach ($leaveDates as $date => $event) {
     if (isset($calendarEvents[$date])) {
-        $calendarEvents[$date][0] .= "," . $event[0];
+        $calendarEvents[$date][0] .= "," . $event[0]; // Append leave to holiday or birthday
     } else {
         $calendarEvents[$date] = $event;
     }
@@ -92,11 +95,21 @@ function draw_calendar($month, $year, $events) {
     $dateComponents = getdate($firstDayOfMonth);
     $dayOfWeek = $dateComponents['wday'];
 
-    $calendarDays = array_fill(0, 35, null);
+    $totalCells = 35;
+    $calendarDays = array_fill(0, $totalCells, null);
     $startIndex = $dayOfWeek;
 
     for ($i = 0; $i < $numberOfDays; $i++) {
         $calendarDays[$startIndex + $i] = $i + 1;
+    }
+
+    $excessDaysStart = $startIndex + $numberOfDays;
+    if ($excessDaysStart > 35) {
+        $extraDays = $excessDaysStart - 35;
+        for ($i = 0; $i < $extraDays; $i++) {
+            $calendarDays[$i] = 35 + $i - $startIndex + 1;
+        }
+        array_splice($calendarDays, 35);
     }
 
     $currentDateToday = date('Y-m-d');
@@ -116,22 +129,28 @@ function draw_calendar($month, $year, $events) {
 
         $currentDate = $day ? sprintf('%04d-%02d-%02d', $year, $month, $day) : null;
         $eventData = $events[$currentDate] ?? null;
-        $eventLabels = "";
+        $eventName = is_array($eventData) ? implode("<br>", (array)$eventData[0]) : "";
 
-        if ($eventData) {
-            $eventLabels .= "<div class='label label-{$eventData[1]}'>" . $eventData[0] . "</div>";
-        }
+        $eventType = $eventData[1] ?? "";
+
+        $eventClass = match ($eventType) {
+            'holiday' => 'bg-danger text-white',
+            'birthday' => 'bg-warning text-dark',
+            'leave' => 'bg-success text-white',
+            default => ''
+        };
 
         if ($currentDate === $currentDateToday) {
-            $eventLabels .= "<div class='label label-today'>Today 📍</div>";
+            $eventClass = 'bg-secondary text-white fw-bold';
         }
 
-        $calendar .= "<div class='calendar-cell'>";
-        $calendar .= $day ? "<div class='day-number'>$day</div>$eventLabels" : "";
+        $calendar .= "<div class='calendar-cell $eventClass' data-event='$eventName'>";
+        $calendar .= $day ? $day : "";
         $calendar .= "</div>";
     }
 
     $calendar .= "</div></div>";
+
     return $calendar;
 }
 ?>
@@ -146,15 +165,19 @@ function draw_calendar($month, $year, $events) {
             <button type="submit" name="month" value="<?= $nextMonth ?>" class="btn btn-outline-primary mx-2">&gt;</button>
         </form>
     </div>
+        <div class="legend-container mt-3">
 
-    <div class="legend-container mt-3">
         <div class="legend-item"><span class="legend-box bg-danger"></span> Holiday</div>
         <div class="legend-item"><span class="legend-box bg-warning"></span> Birthday</div>
         <div class="legend-item"><span class="legend-box bg-success"></span> Leave</div>
         <div class="legend-item"><span class="legend-box bg-secondary"></span> Today</div>
     </div>
     <br> 
+       
     <?= draw_calendar($currentMonth, $currentYear, $calendarEvents); ?>
+
+    <!-- Legend -->
+
 </div>
 
 <!-- CSS Styling -->
@@ -176,38 +199,25 @@ function draw_calendar($month, $year, $events) {
         position: relative;
         flex: 1;
         padding: 13px;
-        min-height: 80px;
-        border: 1px solid #ddd;
+        cursor: pointer;
         text-align: center;
-        vertical-align: top;
+        vertical-align: middle;
+        border: 1px solid #ddd;
         margin: 2px;
-        font-size: 14px;
     }
-    .calendar-cell .day-number {
-        font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 5px;
-    }
-    .label {
-        margin-top: 2px;
-        padding: 2px 6px;
-        font-size: 12px;
-        display: inline-block;
-        border-radius: 4px;
+    .calendar-cell:hover::after {
+        content: attr(data-event);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.75);
         color: white;
-    }
-    .label-holiday {
-        background-color: #dc3545;
-    }
-    .label-birthday {
-        background-color: #ffc107;
-        color: black;
-    }
-    .label-leave {
-        background-color: #28a745;
-    }
-    .label-today {
-        background-color: #6c757d;
+        padding: 5px 10px;
+        border-radius: 5px;
+        white-space: nowrap;
+        display: block;
+        font-size: 12px;
     }
 
     /* Legend Styling */
@@ -228,8 +238,5 @@ function draw_calendar($month, $year, $events) {
         margin-right: 5px;
         border-radius: 3px;
     }
-    .bg-danger { background-color: #dc3545; }
-    .bg-warning { background-color: #ffc107; }
-    .bg-success { background-color: #28a745; }
-    .bg-secondary { background-color: #6c757d; }
 </style>
+
