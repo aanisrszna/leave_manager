@@ -55,14 +55,11 @@ while ($row = mysqli_fetch_array($leaveQuery)) {
         $toDate = new DateTime($row['ToDate']);
         while ($fromDate <= $toDate) {
             $formattedDate = $fromDate->format('Y-m-d');
-
-            // Append multiple names if the date already exists
             if (isset($leaveDates[$formattedDate])) {
                 $leaveDates[$formattedDate][0] .= ", " . $row['LastName'] . "🏖️";
             } else {
                 $leaveDates[$formattedDate] = [$row['LastName'] . "🏖️", 'leave'];
             }
-
             $fromDate->modify('+1 day');
         }
     }
@@ -73,7 +70,7 @@ $calendarEvents = $malaysiaHolidays;
 
 foreach ($birthdays as $date => $event) {
     if (isset($calendarEvents[$date])) {
-        $calendarEvents[$date][0] .= "," . $event[0]; // Append birthday to holiday or leave
+        $calendarEvents[$date][0] .= "," . $event[0];
     } else {
         $calendarEvents[$date] = $event;
     }
@@ -81,7 +78,7 @@ foreach ($birthdays as $date => $event) {
 
 foreach ($leaveDates as $date => $event) {
     if (isset($calendarEvents[$date])) {
-        $calendarEvents[$date][0] .= "," . $event[0]; // Append leave to holiday or birthday
+        $calendarEvents[$date][0] .= "," . $event[0];
     } else {
         $calendarEvents[$date] = $event;
     }
@@ -145,12 +142,19 @@ function draw_calendar($month, $year, $events) {
         }
 
         $calendar .= "<div class='calendar-cell $eventClass' data-event='$eventName'>";
-        $calendar .= $day ? $day : "";
+        if ($day) {
+            $calendar .= "<div>$day</div>";
+            if ($eventName) {
+                $calendar .= "<div class='label label-$eventType'>$eventName</div>";
+            }
+            if ($currentDate === $currentDateToday) {
+                $calendar .= "<div class='label label-today'>Today 📍</div>";
+            }
+        }
         $calendar .= "</div>";
     }
 
     $calendar .= "</div></div>";
-
     return $calendar;
 }
 ?>
@@ -165,19 +169,14 @@ function draw_calendar($month, $year, $events) {
             <button type="submit" name="month" value="<?= $nextMonth ?>" class="btn btn-outline-primary mx-2">&gt;</button>
         </form>
     </div>
-        <div class="legend-container mt-3">
-
+    <div class="legend-container mt-3">
         <div class="legend-item"><span class="legend-box bg-danger"></span> Holiday</div>
         <div class="legend-item"><span class="legend-box bg-warning"></span> Birthday</div>
         <div class="legend-item"><span class="legend-box bg-success"></span> Leave</div>
         <div class="legend-item"><span class="legend-box bg-secondary"></span> Today</div>
     </div>
-    <br> 
-       
+    <br>       
     <?= draw_calendar($currentMonth, $currentYear, $calendarEvents); ?>
-
-    <!-- Legend -->
-
 </div>
 
 <!-- CSS Styling -->
@@ -238,5 +237,27 @@ function draw_calendar($month, $year, $events) {
         margin-right: 5px;
         border-radius: 3px;
     }
-</style>
 
+    .label {
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin: 2px 0;
+    }
+    .label-holiday {
+        background-color: #dc3545;
+        color: white;
+    }
+    .label-birthday {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    .label-leave {
+        background-color: #28a745;
+        color: white;
+    }
+    .label-today {
+        background-color: #6c757d;
+        color: white;
+    }
+</style>
