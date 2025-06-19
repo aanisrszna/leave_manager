@@ -140,9 +140,20 @@ function draw_calendar($month, $year, $events) {
             default => ''
         };
 
-        if ($currentDate === $currentDateToday) {
+        $isToday = $currentDate === $currentDateToday;
+
+        if ($isToday) {
             $eventClass = 'bg-secondary text-white fw-bold';
+            $eventName = "Today 📅"; // Override tooltip to show only 'Today'
+        } elseif ($eventData) {
+            $eventClass = match ($eventType) {
+                'holiday' => 'bg-danger text-white',
+                'birthday' => 'bg-warning text-dark',
+                'leave' => 'bg-success text-white',
+                default => ''
+            };
         }
+
 
         $calendar .= "<div class='calendar-cell $eventClass' data-event='$eventName'>";
         $calendar .= $day ? $day : "";
