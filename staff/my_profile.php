@@ -236,9 +236,14 @@ if (isset($_POST["update_image"])) {
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Date Of Birth</label>
-																<input name="dob" class="form-control form-control-lg date-picker" type="text" placeholder="" 
-																	required readonly autocomplete="off" 
-																	value="<?php echo date('d/m/Y', strtotime($row['Dob'])); ?>">
+																<input name="dob" class="form-control form-control-lg"
+																	type="text"
+																	value="<?php echo date('d/m/Y', strtotime($row['Dob'])); ?>"
+																	readonly
+																	onkeydown="return false;"
+																	onpaste="return false;"
+																	onmousedown="return false;"
+																	style="user-select: none; pointer-events: none; background-color: #e9ecef;">
 															</div>
 														</div>
 														<div class="weight-500 col-md-6">
@@ -254,11 +259,17 @@ if (isset($_POST["update_image"])) {
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Date Joined</label>
-																<input name="date_joined" class="form-control form-control-lg date-picker" type="text" placeholder="" 
-																	required readonly autocomplete="off" 
-																	value="<?php echo date('d/m/Y', strtotime($row['date_joined'])); ?>">
+																<input name="date_joined" class="form-control form-control-lg"
+																	type="text"
+																	value="<?php echo date('d/m/Y', strtotime($row['date_joined'])); ?>"
+																	readonly
+																	onkeydown="return false;"
+																	onpaste="return false;"
+																	onmousedown="return false;"
+																	style="user-select: none; pointer-events: none; background-color: #e9ecef;">
 															</div>
-														</div>
+														</div>														
+
 														<div class="weight-500 col-md-6">
 															<div class="form-group">
 																<label>Service Year</label>
