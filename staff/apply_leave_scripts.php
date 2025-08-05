@@ -45,6 +45,7 @@ function calc() {
     document.getElementById('requested_days').value = requestedDays;
     updateAvailableDays();
     validateForm();
+
 }
 
 function toggleHalfDayType() {
@@ -140,6 +141,7 @@ function validateForm() {
     applyButton.disabled = !isFormValid;
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
     let dateInputs = document.querySelectorAll("#date_form, #date_to");
 
@@ -185,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleProofField();
     validateForm();
 });
-
 </script>
 
 <!-- Vendor Scripts -->
