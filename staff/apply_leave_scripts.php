@@ -44,6 +44,7 @@ function calc() {
 
     document.getElementById('requested_days').value = requestedDays;
     updateAvailableDays();
+    validateForm();
 }
 
 function toggleHalfDayType() {
@@ -133,16 +134,8 @@ function validateForm() {
     const outstandingDays = parseFloat(document.getElementById('outstanding_days').value) || 0;
     const applyButton = document.getElementById('apply');
 
-    const leaveTypeSelect = document.getElementById('leave_type');
-    const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
-    const needProof = selectedOption.getAttribute('data-need-proof');
-    const proofFile = document.getElementById('proof');
-
-    let isFormValid = dateFrom && dateTo && requestedDays > 0 && outstandingDays >= 0;
-
-    if (needProof === 'Yes' && (!proofFile || proofFile.files.length === 0)) {
-        isFormValid = false;
-    }
+    // ✅ Only check date and leave days — ignore proof
+    let isFormValid = !!dateFrom && !!dateTo && requestedDays > 0 && outstandingDays >= 0;
 
     applyButton.disabled = !isFormValid;
 }
@@ -192,6 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleProofField();
     validateForm();
 });
+
 </script>
 
 <!-- Vendor Scripts -->
