@@ -121,7 +121,7 @@
                             <h5 class="mb-0">Organization Chart</h5>
                         </div>
                         <div class="card-body text-center">
-                            <img src="../vendors/images/organization.png" alt="Organization Chart"
+                            <img src="../vendors/images/org.png" alt="Organization Chart"
                                 class="img-fluid" style="max-width: 100%; height: auto;" />
                         </div>
                     </div>

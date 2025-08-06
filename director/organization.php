@@ -14,7 +14,7 @@
 
             <div class="row justify-content-center">
                 <div class="col-md-10 text-center">
-                    <img src="../vendors/images/organization.png" alt="Organization Logo" class="img-fluid" style="max-width: 100%; height: auto;" />
+                    <img src="../vendors/images/org.png" alt="Organization Logo" class="img-fluid" style="max-width: 100%; height: auto;" />
                 </div>
             </div>
         </div>
