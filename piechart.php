@@ -43,7 +43,7 @@ foreach ($results as $row) {
     }
 
     // Treat leave types 1, 2, 3, 34, 35, 36, 37 as annual leave (33 moved to medical)
-    if (in_array($leaveType, [1, 2, 3, 33, 34, 35, 36, 37])) {
+    if (in_array($leaveType, [1, 2, 3, 33, 34, 35, 36, 37, 39])) {
         if (!isset($leaveCountsAnnual[$name])) {
             $leaveCountsAnnual[$name] = 0;
         }
