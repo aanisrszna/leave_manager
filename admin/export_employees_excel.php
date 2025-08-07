@@ -32,7 +32,7 @@ $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVe
 $sheet->getRowDimension(1)->setRowHeight(25);
 
 // Fetch employee records excluding Admins
-$sql = "SELECT Staff_ID, FirstName, Position_Staff, IC_Number, EmailId, Phonenumber, Dob, Gender, Address, date_joined, Car_Plate, Reporting_To, Emergency_Name, Emergency_Relation, Emergency_Contact FROM tblemployees WHERE role != 'Admin'";
+$sql = "SELECT Staff_ID, FirstName, Position_Staff, IC_Number, EmailId, Phonenumber, Dob, Gender, Address, date_joined, Car_Plate, Reporting_To, Emergency_Name, Emergency_Relation, Emergency_Contact FROM tblemployees WHERE role != 'Admin' AND Status != 'Inactive'";
 $query = $dbh->prepare($sql);
 $query->execute();
 $results = $query->fetchAll(PDO::FETCH_ASSOC);
