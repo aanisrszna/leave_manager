@@ -16,7 +16,7 @@ $sheet = $spreadsheet->getActiveSheet();
 
 // Updated headers
 $headers = [
-    'Staff ID', 'First Name', 'IC Number', 'Email', 'Phone Number', 'Date of Birth', 'Gender', 'Address',
+    'Staff ID', 'First Name', 'Position', 'IC Number', 'Email', 'Phone Number', 'Date of Birth', 'Gender', 'Address',
     'Date Joined', 'Car Plate', 'Reporting To',
     'Emergency Name', 'Emergency Relation', 'Emergency Contact'
 ];
@@ -32,7 +32,7 @@ $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVe
 $sheet->getRowDimension(1)->setRowHeight(25);
 
 // Fetch employee records excluding Admins
-$sql = "SELECT Staff_ID, FirstName, IC_Number, EmailId, Phonenumber, Dob, Gender, Address, date_joined, Car_Plate, Reporting_To, Emergency_Name, Emergency_Relation, Emergency_Contact FROM tblemployees WHERE role != 'Admin'";
+$sql = "SELECT Staff_ID, FirstName, Position_Staff, IC_Number, EmailId, Phonenumber, Dob, Gender, Address, date_joined, Car_Plate, Reporting_To, Emergency_Name, Emergency_Relation, Emergency_Contact FROM tblemployees WHERE role != 'Admin'";
 $query = $dbh->prepare($sql);
 $query->execute();
 $results = $query->fetchAll(PDO::FETCH_ASSOC);
