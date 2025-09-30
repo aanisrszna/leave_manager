@@ -143,6 +143,7 @@ if (isset($_POST['apply'])) {
 
     // Retrieve emp_id and role based on staff_id
     // Retrieve emp_id and role based on staff_id
+    // Retrieve emp_id and role based on staff_id
     $empQuery = "SELECT emp_id, role, Department, FirstName, EmailId FROM tblemployees WHERE Staff_ID = ?";
     $empStmt = $conn->prepare($empQuery);
     $empStmt->bind_param("s", $staff_id);
@@ -151,20 +152,22 @@ if (isset($_POST['apply'])) {
 
     if ($empResult->num_rows > 0) {
         $empRow = $empResult->fetch_assoc();
-        $empid = $empRow['emp_id'];  // Correct emp_id for the employee applying for leave
-        $role = $empRow['role'];
+        $empid      = $empRow['emp_id'];  // Correct emp_id for the employee applying for leave
+        $role       = $empRow['role'];
         $department = $empRow['Department'];
-        $empName = $empRow['FirstName'];
-        $empEmail = $empRow['EmailId'];
+        $empName    = $empRow['FirstName'];
+        $empEmail   = $empRow['EmailId'];
 
-        // Get manager email
-        $hodQuery = "SELECT EmailId FROM tblemployees WHERE role = 'Manager' AND Department = ?";
-        $hodStmt = $conn->prepare($hodQuery);
-        $hodStmt->bind_param("s", $department);
-        $hodStmt->execute();
-        $hodResult = $hodStmt->get_result();
-        $hodRow = $hodResult->fetch_assoc();
-        $hodEmail = $hodRow['EmailId'] ?? null;
+        // ========= CHANGED: get Director email (global), not Manager by department =========
+        $directorEmail = null;
+        $directorQuery = "SELECT EmailId FROM tblemployees WHERE role = 'Director' LIMIT 1";
+        $directorStmt  = $conn->prepare($directorQuery);
+        $directorStmt->execute();
+        $directorResult = $directorStmt->get_result();
+        if ($directorRow = $directorResult->fetch_assoc()) {
+            $directorEmail = $directorRow['EmailId'] ?? null;
+        }
+        // ================================================================================
 
         // Retrieve leave type name
         $leaveTypeQuery = "SELECT LeaveType FROM tblleavetype WHERE id = ?";
@@ -180,7 +183,7 @@ if (isset($_POST['apply'])) {
         }
 
         $leave_type = $leaveTypeRow['LeaveType'];
-        $hod_remarks = ($role == 'Manager') ? 3 : 'Pending';
+        $hod_remarks = ($role == 'Manager') ? 3 : 'Pending'; // keep if used elsewhere
 
         // 🔄 Overlapping leave check for the same empid
         $overlapQuery = "
@@ -203,9 +206,7 @@ if (isset($_POST['apply'])) {
             </script>";
             exit();
         }
-        
-        
-    
+
         // ✅ Insert leave record
         $insert_query = "
             INSERT INTO tblleave (empid, LeaveType, FromDate, ToDate, RequestedDays, DaysOutstand, Reason, PostingDate, Proof, IsHalfDay, HalfDayType)
@@ -221,7 +222,7 @@ if (isset($_POST['apply'])) {
             if (!empty($empEmail)) {
                 $subject = "Leave Application Submitted";
                 $message = "
-                    <p>Dear Employee,</p>
+                    <p>Dear $empName,</p>
                     <p>Your leave application has been submitted successfully by admin.</p>
                     <table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%;'>
                         <tr><th align='left'>Leave Type</th><td>$leave_type</td></tr>
@@ -233,15 +234,14 @@ if (isset($_POST['apply'])) {
                     <p>Please review the application.</p>
                     <p>Best regards,<br><strong>e-Leave Manager System</strong></p>
                 ";
-
                 send_email($empEmail, $subject, $message);
             }
 
-            // Send email to manager
-            if (!empty($hodEmail)) {
+            // ========= CHANGED: send to Director instead of Manager =========
+            if (!empty($directorEmail) && strcasecmp($directorEmail, (string)$empEmail) !== 0) {
                 $subject = "New Leave Application from $empName";
                 $message = "
-                    <p>Dear Manager,</p>
+                    <p>Dear Director,</p>
                     <p>$empName has submitted a leave application with the following details:</p>
                     <table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%;'>
                         <tr><th align='left'>Leave Type</th><td>$leave_type</td></tr>
@@ -252,15 +252,16 @@ if (isset($_POST['apply'])) {
                     </table>
                     <p>Please review the application in the system.</p>
                 ";
-                send_email($hodEmail, $subject, $message);
+                send_email($directorEmail, $subject, $message);
             }
-
+            // ===============================================================
         } else {
             echo "<script>alert('Failed to add leave record. Error: " . $stmt->error . "');</script>";
         }
     } else {
         echo "<script>alert('Invalid Staff ID.');</script>";
     }
+
 }
 ?>
 
