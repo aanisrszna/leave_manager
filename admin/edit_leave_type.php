@@ -95,7 +95,7 @@ if (isset($_POST['edit'])) {
 
                                     <!-- NEW: Display on Pie Chart -->
                                     <div class="form-group">
-                                        <label>Display on Pie Chart</label><br>
+                                        <label>Display on Bar Chart</label><br>
                                         <input name="is_display" type="radio" value="Yes" id="is_display_yes"
                                             <?php echo (isset($row['IsDisplay']) && $row['IsDisplay'] === 'Yes') ? 'checked' : ''; ?> required>
                                         <label for="is_display_yes">Yes</label>
