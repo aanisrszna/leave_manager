@@ -4,7 +4,41 @@
 $statusApproved = 1;
 $currentYear = date('Y');
 
-// Fetch approved leave data (Annual Leave: 1,2,3 | Medical Leave: 4)
+/**
+ * 1) Build dynamic buckets from tblleavetype where IsDisplay='Yes'
+ *    - Anything matching "medical" or "hospital" -> Medical bucket
+ *    - Everything else -> Annual bucket
+ *    (Adjust the pattern rules below anytime you need finer control,
+ *     but no more hard-coded ID arrays in the chart code.)
+ */
+$typeSql = "SELECT id, LeaveType FROM tblleavetype WHERE IsDisplay = 'Yes'";
+$typeStmt = $dbh->prepare($typeSql);
+$typeStmt->execute();
+$typeRows = $typeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Dynamic ID sets
+$annualTypeIds = [];
+$medicalTypeIds = [];
+
+foreach ($typeRows as $t) {
+    $id   = (int)$t['id'];
+    $name = strtolower(trim($t['LeaveType']));
+
+    // Heuristic to classify displayed types
+    if (preg_match('/medical|hospital/i', $name)) {
+        $medicalTypeIds[] = $id;
+    } else {
+        $annualTypeIds[] = $id;
+    }
+}
+
+// If nothing is set to display, keep arrays empty (chart will show 0s)
+$annualTypeIds = array_unique($annualTypeIds);
+$medicalTypeIds = array_unique($medicalTypeIds);
+
+/**
+ * 2) Fetch approved leave data (same query shape you had)
+ */
 $sql = "SELECT e.emp_id, e.LastName, lt.id AS leave_type, COALESCE(SUM(l.RequestedDays), 0) AS leave_count
         FROM tblemployees e
         LEFT JOIN tblleave l ON l.empid = e.emp_id AND l.RegRemarks = :status 
@@ -14,26 +48,20 @@ $sql = "SELECT e.emp_id, e.LastName, lt.id AS leave_type, COALESCE(SUM(l.Request
         GROUP BY e.emp_id, e.LastName, lt.id
         ORDER BY e.emp_id";
 
-
-
-
 $query = $dbh->prepare($sql);
 $query->bindParam(':status', $statusApproved, PDO::PARAM_INT);
 $query->bindParam(':currentYear', $currentYear, PDO::PARAM_INT);
 $query->execute();
 $results = $query->fetchAll(PDO::FETCH_ASSOC);
 
-// Debugging: Check fetched data
-// echo "<pre>"; print_r($results); echo "</pre>";
-
+// Process (same structure you had), but use the dynamic ID sets above
 $employees = [];
 $leaveCountsAnnual = [];
 $leaveCountsMedical = [];
 
-// Ensure default values
 foreach ($results as $row) {
     $name = $row['LastName'];
-    $leaveType = intval($row['leave_type']);
+    $leaveType = isset($row['leave_type']) ? intval($row['leave_type']) : 0;
     $leaveDays = floatval($row['leave_count']);
 
     if (!isset($employees[$name])) {
@@ -42,23 +70,15 @@ foreach ($results as $row) {
         $leaveCountsMedical[$name] = 0;
     }
 
-    // Treat leave types 1, 2, 3, 34, 35, 36, 37 as annual leave (33 moved to medical)
-    if (in_array($leaveType, [1, 2, 3, 33, 34, 35, 36, 37, 39, 40])) {
-        if (!isset($leaveCountsAnnual[$name])) {
-            $leaveCountsAnnual[$name] = 0;
-        }
+    // Dynamic classification: no hard-coded IDs anymore
+    if ($leaveType && in_array($leaveType, $annualTypeIds, true)) {
         $leaveCountsAnnual[$name] += $leaveDays;
     }
 
-    // Treat leave types 4 and 33 as medical leave
-    if (in_array($leaveType, [4, 38])) {
-        if (!isset($leaveCountsMedical[$name])) {
-            $leaveCountsMedical[$name] = 0;
-        }
+    if ($leaveType && in_array($leaveType, $medicalTypeIds, true)) {
         $leaveCountsMedical[$name] += $leaveDays;
     }
 }
-
 
 // Ensure all employees have values for both leave types
 foreach ($employees as $name) {
@@ -66,13 +86,10 @@ foreach ($employees as $name) {
     $leaveCountsMedical[$name] = $leaveCountsMedical[$name] ?? 0;
 }
 
-// Debugging: Check processed leave data
-// echo "<pre>"; print_r($leaveCountsAnnual); print_r($leaveCountsMedical); echo "</pre>";
-
-$employeeNamesJson = json_encode(array_values($employees));
+// Encode for chart (unchanged)
+$employeeNamesJson = json_encode(array_values($employees), JSON_UNESCAPED_UNICODE);
 $leaveCountsAnnualJson = json_encode(array_values($leaveCountsAnnual));
 $leaveCountsMedicalJson = json_encode(array_values($leaveCountsMedical));
-
 
 ?>
 
@@ -110,7 +127,7 @@ $leaveCountsMedicalJson = json_encode(array_values($leaveCountsMedical));
             window.myBarChart.destroy();
         }
 
-        // Create new chart instance
+        // Create new chart instance (same structure, labels unchanged)
         window.myBarChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -171,7 +188,6 @@ $leaveCountsMedicalJson = json_encode(array_values($leaveCountsMedical));
         });
     });
 </script>
-
 
 <style>
     .chart-container {

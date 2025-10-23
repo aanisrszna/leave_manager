@@ -5,18 +5,21 @@ $get_id = $_GET['edit'];
 
 if (isset($_POST['edit'])) {
     // Get values from the form and sanitize inputs
-    $leavetype = htmlspecialchars($_POST['leavetype'], ENT_QUOTES, 'UTF-8');
-    $description = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
-    $assigned_day = floatval($_POST['assigned_day']); // Handle assigned_day as a decimal
+    $leavetype    = htmlspecialchars($_POST['leavetype'], ENT_QUOTES, 'UTF-8');
+    $description  = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
+    $assigned_day = floatval($_POST['assigned_day']); // decimal supported
 
-    // Validate and sanitize the NeedProof value
-    $needproof = $_POST['needproof']; // Directly use 'yes' or 'no' as is
+    // Normalize radios (DB uses 'Yes' / 'No')
+    $needproof  = (isset($_POST['needproof'])  && $_POST['needproof']  === 'Yes') ? 'Yes' : 'No';
+    $isdisplay  = (isset($_POST['is_display']) && $_POST['is_display'] === 'Yes') ? 'Yes' : 'No';
 
     // Update query using prepared statements to avoid SQL injection
-    $stmt = $conn->prepare("UPDATE tblleavetype SET LeaveType = ?, Description = ?, assigned_day = ?, NeedProof = ? WHERE id = ?");
-    $stmt->bind_param("ssssi", $leavetype, $description, $assigned_day, $needproof, $get_id);
+    $stmt = $conn->prepare("UPDATE tblleavetype 
+                            SET LeaveType = ?, Description = ?, assigned_day = ?, NeedProof = ?, IsDisplay = ?
+                            WHERE id = ?");
+    // s = string, s = string, d = double/float, s = string, s = string, i = integer
+    $stmt->bind_param("sssdsi", $leavetype, $description, $assigned_day, $needproof, $isdisplay, $get_id);
 
-    // Execute the query and check for success
     if ($stmt->execute()) {
         echo "<script>alert('Leave Type updated successfully');</script>";
         echo "<script type='text/javascript'> document.location = 'leave_type.php'; </script>";
@@ -26,7 +29,6 @@ if (isset($_POST['edit'])) {
     $stmt->close();
 }
 ?>
-
 
 <body>
     <?php include('includes/navbar.php'); ?>
@@ -66,26 +68,41 @@ if (isset($_POST['edit'])) {
                                 <form method="post">
                                     <div class="form-group">
                                         <label>Leave Type</label>
-                                        <input name="leavetype" type="text" class="form-control" required="true" value="<?php echo htmlentities($row['LeaveType']); ?>">
+                                        <input name="leavetype" type="text" class="form-control" required value="<?php echo htmlentities($row['LeaveType']); ?>">
                                     </div>
+
                                     <div class="form-group">
                                         <label>Description</label>
                                         <textarea name="description" class="form-control" required><?php echo htmlentities($row['Description']); ?></textarea>
                                     </div>
+
                                     <div class="form-group">
                                         <label>Assigned Day</label>
                                         <input name="assigned_day" type="number" step="0.01" class="form-control" min="0" value="<?php echo htmlentities($row['assigned_day']); ?>" required>
                                     </div>
+
                                     <div class="form-group">
                                         <label>Need Proof</label><br>
-                                        <!-- Check for the NeedProof value ('yes' or 'no') -->
-                                        <input name="needproof" type="radio" value="yes" id="needproof_yes" 
-                                        <?php echo ($row['NeedProof'] == 'Yes') ? 'checked' : ''; ?> required>
+                                        <!-- Radios use Yes/No to match DB -->
+                                        <input name="needproof" type="radio" value="Yes" id="needproof_yes" 
+                                            <?php echo ($row['NeedProof'] === 'Yes') ? 'checked' : ''; ?> required>
                                         <label for="needproof_yes">Yes</label>
 
-                                        <input name="needproof" type="radio" value="no" id="needproof_no" 
-                                        <?php echo ($row['NeedProof'] == 'No') ? 'checked' : ''; ?> required>
+                                        <input name="needproof" type="radio" value="No" id="needproof_no" 
+                                            <?php echo ($row['NeedProof'] === 'No') ? 'checked' : ''; ?> required>
                                         <label for="needproof_no">No</label>
+                                    </div>
+
+                                    <!-- NEW: Display on Pie Chart -->
+                                    <div class="form-group">
+                                        <label>Display on Pie Chart</label><br>
+                                        <input name="is_display" type="radio" value="Yes" id="is_display_yes"
+                                            <?php echo (isset($row['IsDisplay']) && $row['IsDisplay'] === 'Yes') ? 'checked' : ''; ?> required>
+                                        <label for="is_display_yes">Yes</label>
+
+                                        <input name="is_display" type="radio" value="No" id="is_display_no"
+                                            <?php echo (isset($row['IsDisplay']) && $row['IsDisplay'] === 'No') ? 'checked' : ''; ?> required>
+                                        <label for="is_display_no">No</label>
                                     </div>
 
                                     <div class="text-right">
@@ -103,4 +120,3 @@ if (isset($_POST['edit'])) {
     <?php include('includes/scripts.php'); ?>
 </body>
 </html>
-

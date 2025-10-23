@@ -121,12 +121,18 @@
                             <h5 class="mb-0">Organization Chart</h5>
                         </div>
                         <div class="card-body text-center">
-                            <img src="../vendors/images/org.png" alt="Organization Chart"
+                            <?php
+                            $orgPathFs = realpath(__DIR__ . '/../vendors/images/org.png');
+                            $orgUrl    = '../vendors/images/org.png';
+                            $ver       = ($orgPathFs && file_exists($orgPathFs)) ? filemtime($orgPathFs) : time();
+                            ?>
+                            <img src="<?= $orgUrl ?>?v=<?= $ver ?>" alt="Organization Chart"
                                 class="img-fluid" style="max-width: 100%; height: auto;" />
                         </div>
                     </div>
                 </div>
             </div>
+
 
             <!-- Footer Spacer -->
             <div class="my-5"></div>

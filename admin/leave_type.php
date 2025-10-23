@@ -17,8 +17,9 @@ if (isset($_GET['delete'])) {
 if (isset($_POST['add'])) {
     $leavetype = $_POST['leavetype'];
     $description = $_POST['description'];
-    $assigned_day = intval($_POST['assigned_day']); // Convert assigned days to an integer
-    $need_proof = $_POST['need_proof']; // Get Need Proof value
+    $assigned_day = intval($_POST['assigned_day']); // Convert assigned days to integer
+    $need_proof = $_POST['need_proof']; 
+    $is_display = $_POST['is_display']; // NEW FIELD for display option
 
     $query = mysqli_query($conn, "SELECT * FROM tblleavetype WHERE LeaveType = '$leavetype'") or die(mysqli_error());
     $count = mysqli_num_rows($query);
@@ -26,8 +27,8 @@ if (isset($_POST['add'])) {
     if ($count > 0) { 
         echo "<script>alert('LeaveType Already exists');</script>";
     } else {
-        $query = mysqli_query($conn, "INSERT INTO tblleavetype (LeaveType, Description, assigned_day, NeedProof) 
-            VALUES ('$leavetype', '$description', '$assigned_day', '$need_proof')") or die(mysqli_error());
+        $query = mysqli_query($conn, "INSERT INTO tblleavetype (LeaveType, Description, assigned_day, NeedProof, IsDisplay) 
+            VALUES ('$leavetype', '$description', '$assigned_day', '$need_proof', '$is_display')") or die(mysqli_error());
 
         if ($query) {
             echo "<script>alert('LeaveType Added');</script>";
@@ -82,7 +83,7 @@ if (isset($_POST['add'])) {
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Leave Description</label>
-                                                <textarea name="description" style="height: 5em;" class="form-control text_area" type="text"></textarea>
+                                                <textarea name="description" style="height: 5em;" class="form-control text_area"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -90,7 +91,7 @@ if (isset($_POST['add'])) {
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Assigned Days</label>
-                                                <input name="assigned_day" class="form-control" type="number" min="0.5" step="0.5" placeholder="Enter the number of days" required>
+                                                <input name="assigned_day" class="form-control" type="number" min="0.5" step="0.5" placeholder="Enter number of days" required>
                                             </div>
                                         </div>
                                     </div>
@@ -107,6 +108,21 @@ if (isset($_POST['add'])) {
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- NEW: Display on Pie Chart -->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Display on Pie Chart</label>
+                                                <select name="is_display" class="form-control" required>
+                                                    <option value="" disabled selected>Select</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-sm-12 text-right">
                                         <div class="dropdown">
                                             <input class="btn btn-primary" type="submit" value="REGISTER" name="add" id="add">
@@ -126,9 +142,10 @@ if (isset($_POST['add'])) {
                                     <thead>
                                         <tr>
                                             <th class="table-plus">LEAVETYPE</th>
-                                            <th class="table-plus">DESCRIPTION</th>
-                                            <th class="table-plus">ASSIGNED DAYS</th>
-                                            <th class="table-plus">NEED PROOF</th>
+                                            <th>DESCRIPTION</th>
+                                            <th>ASSIGNED DAYS</th>
+                                            <th>NEED PROOF</th>
+                                            <th>DISPLAY</th> <!-- NEW COLUMN -->
                                             <th class="datatable-nosort">ACTION</th>
                                         </tr>
                                     </thead>
@@ -138,7 +155,6 @@ if (isset($_POST['add'])) {
                                         $query = $dbh->prepare($sql);
                                         $query->execute();
                                         $results = $query->fetchAll(PDO::FETCH_OBJ);
-                                        $cnt = 1;
                                         if ($query->rowCount() > 0) {
                                             foreach ($results as $result) { ?>  
                                                 <tr>
@@ -146,18 +162,19 @@ if (isset($_POST['add'])) {
                                                     <td><?php echo htmlentities($result->Description); ?></td>
                                                     <td><?php echo htmlentities($result->assigned_day . " days"); ?></td>
                                                     <td><?php echo htmlentities($result->NeedProof); ?></td>
+                                                    <td><?php echo htmlentities($result->IsDisplay); ?></td> <!-- NEW -->
                                                     <td>
                                                         <div class="table-actions">
                                                             <a href="edit_leave_type.php?edit=<?php echo htmlentities($result->id); ?>" data-color="#265ed7">
                                                                 <i class="icon-copy dw dw-edit2"></i>
                                                             </a>
-                                                            <a href="leave_type.php?delete=<?php echo htmlentities($result->id); ?>" data-color="#e95959">
+                                                            <a href="leave_type.php?delete=<?php echo htmlentities($result->id); ?>" data-color="#e95959" onclick="return confirm('Are you sure to delete this leave type?');">
                                                                 <i class="icon-copy dw dw-delete-3"></i>
                                                             </a>
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            <?php $cnt++; } 
+                                            <?php } 
                                         } ?>  
                                     </tbody>
                                 </table>
@@ -171,4 +188,3 @@ if (isset($_POST['add'])) {
     </div>
     <?php include('includes/scripts.php') ?>
 </body>
-
