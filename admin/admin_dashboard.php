@@ -307,7 +307,10 @@
                                             FROM employee_leave
                                             JOIN tblleavetype ON employee_leave.leave_type_id = tblleavetype.id
                                             WHERE employee_leave.emp_id = :emp_id
-                                            ORDER BY tblleavetype.id ASC";
+                                            ORDER BY 
+                                                CASE WHEN tblleavetype.IsDisplay = 'Yes' THEN 1 ELSE 2 END,
+                                                tblleavetype.LeaveType ASC";
+
                             
                                             $query_leaves = $dbh->prepare($sql_leaves);
                                             $query_leaves->bindParam(':emp_id', $employee->emp_id, PDO::PARAM_INT);
