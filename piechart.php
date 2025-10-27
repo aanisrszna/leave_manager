@@ -44,7 +44,7 @@ $sql = "SELECT e.emp_id, e.LastName, lt.id AS leave_type, COALESCE(SUM(l.Request
         LEFT JOIN tblleave l ON l.empid = e.emp_id AND l.RegRemarks = :status 
             AND YEAR(STR_TO_DATE(l.FromDate, '%Y-%m-%d')) = :currentYear
         LEFT JOIN tblleavetype lt ON l.LeaveType = lt.LeaveType
-        WHERE e.Role != 'Director' AND e.Status != 'Inactive' -- Exclude Director and Inactive employees
+        WHERE e.Role NOT IN ('Director', 'Admin') AND e.Status != 'Inactive' -- Exclude Director, Admin, and Inactive employees
         GROUP BY e.emp_id, e.LastName, lt.id
         ORDER BY e.emp_id";
 
