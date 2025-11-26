@@ -122,13 +122,14 @@ if (isset($_GET['delete'])) {
 								</td>
 
 								<!-- Leave Duration -->
-								<td>
+								<td data-order="<?php echo date('Ymd', strtotime($row->FromDate)); ?>">
 									<?php 
 										echo date("d/m/Y", strtotime($row->FromDate)) . 
 											" to " . 
 											date("d/m/Y", strtotime($row->ToDate)); 
 									?>
 								</td>
+
 
 								<!-- Manager Status -->
 								<td>
