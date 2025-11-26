@@ -89,95 +89,101 @@ if (isset($_GET['delete'])) {
 					<h2 class="text-blue h4">ALL APPLICATIONS</h2>
 				</div>
 				<div class="pb-20">
-					<table class="data-table table stripe hover nowrap">
-						<thead>
+				<table class="data-table table stripe hover nowrap">
+					<thead>
+						<tr>
+							<th class="table-plus datatable-nosort">STAFF NAME</th>
+							<th>LEAVE DURATION</th>
+							<th>MANAGER STATUS</th>
+							<th>DIRECTOR STATUS</th>
+							<th class="datatable-nosort">ACTION</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+						$sql = "SELECT tblleave.id AS lid, tblemployees.FirstName, tblemployees.Role,
+								tblleave.FromDate, tblleave.ToDate,
+								tblleave.RegRemarks, tblleave.HodRemarks
+								FROM tblleave
+								JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
+								ORDER BY tblleave.id DESC";
+
+						$query = $dbh->prepare($sql);
+						$query->execute();
+						$results = $query->fetchAll(PDO::FETCH_OBJ);
+
+						foreach ($results as $row) {
+						?>
 							<tr>
-								<th class="table-plus datatable-nosort">STAFF NAME</th>
-								<th>LEAVE TYPE</th>
-								<th>APPLIED DATE</th>
-								<th>MANAGER STATUS</th>
-								<th>DIRECTOR STATUS</th>
-								<th class="datatable-nosort">ACTION</th>
+								<td class="table-plus">
+									<div class="txt">
+										<div class="weight-600"><?php echo $row->FirstName; ?></div>
+									</div>
+								</td>
+
+								<!-- Leave Duration -->
+								<td>
+									<?php 
+										echo date("d/m/Y", strtotime($row->FromDate)) . 
+											" to " . 
+											date("d/m/Y", strtotime($row->ToDate)); 
+									?>
+								</td>
+
+								<!-- Manager Status -->
+								<td>
+									<?php
+									if ($row->Role === 'Manager' || $row->Role === 'Admin') {
+										echo '<span style="color: gray">NA</span>';
+									} else {
+										if ($row->HodRemarks == 1) {
+											echo '<span style="color: green">Approved</span>';
+										} elseif ($row->HodRemarks == 2) {
+											echo '<span style="color: red">Rejected</span>';
+										} else {
+											echo '<span style="color: blue">Pending</span>';
+										}
+									}
+									?>
+								</td>
+
+								<!-- Director Status -->
+								<td>
+									<?php
+									if ($row->RegRemarks == 1) {
+										echo '<span style="color: green">Approved</span>';
+									} elseif ($row->RegRemarks == 2) {
+										echo '<span style="color: red">Rejected</span>';
+									} else {
+										echo '<span style="color: blue">Pending</span>';
+									}
+									?>
+								</td>
+
+								<!-- Action -->
+								<td class="text-center">
+									<div class="dropdown">
+										<button class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" type="button" data-toggle="dropdown">
+											<i class="dw dw-more"></i>
+										</button>
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item" href="leave_details.php?leaveid=<?php echo $row->lid; ?>">
+												<i class="dw dw-eye"></i> View
+											</a>
+											<a class="dropdown-item text-danger" href="leaves.php?delete=<?php echo $row->lid; ?>" onclick="return confirm('Are you sure you want to delete this leave?');">
+												<i class="dw dw-delete-3"></i> Delete
+											</a>
+										</div>
+									</div>
+								</td>
 							</tr>
-						</thead>
-						<tbody>
-							<?php
-							$sql = "SELECT tblleave.id AS lid, tblemployees.FirstName, tblemployees.Role,
-							        tblleave.LeaveType, tblleave.PostingDate, tblleave.RegRemarks, tblleave.HodRemarks
-							        FROM tblleave
-							        JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
-							        ORDER BY tblleave.id DESC";
-							$query = $dbh->prepare($sql);
-							$query->execute();
-							$results = $query->fetchAll(PDO::FETCH_OBJ);
-
-							foreach ($results as $row) {
-								?>
-									<tr>
-										<td class="table-plus">
-											<div class="txt">
-												<div class="weight-600"><?php echo $row->FirstName ; ?></div>
-											</div>
-										</td>
-										<td><?php echo $row->LeaveType; ?></td>
-										<td><?php echo date("d/m/Y", strtotime($row->PostingDate)); ?></td>
-
-										<td>
-											<?php
-											if ($row->Role === 'Manager'||$row->Role === 'Admin') {
-												echo '<span style="color: gray">NA</span>';
-											} else {
-												$hodStatus = $row->HodRemarks;
-												if ($hodStatus == 1) {
-													echo '<span style="color: green">Approved</span>';
-												} elseif ($hodStatus == 2) {
-													echo '<span style="color: red">Rejected</span>';
-												} else {
-													echo '<span style="color: blue">Pending</span>';
-												}
-											}
-											?>
-										</td>
-										<td>
-											<?php
-											$regStatus = $row->RegRemarks;
-											if ($regStatus == 1) {
-												echo '<span style="color: green">Approved</span>';
-											} elseif ($regStatus == 2) {
-												echo '<span style="color: red">Rejected</span>';
-											} else {
-												echo '<span style="color: blue">Pending</span>';
-											}
-											?>
-										</td>
-										<td class="text-center">
-											<div class="dropdown">
-												<button class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" type="button" data-toggle="dropdown">
-													<i class="dw dw-more"></i>
-												</button>
-												<div class="dropdown-menu dropdown-menu-right">
-													<a class="dropdown-item" href="leave_details.php?leaveid=<?php echo $row->lid; ?>">
-														<i class="dw dw-eye"></i> View
-													</a>
-													<a class="dropdown-item text-danger" href="leaves.php?delete=<?php echo $row->lid; ?>" onclick="return confirm('Are you sure you want to delete this leave?');">
-														<i class="dw dw-delete-3"></i> Delete
-													</a>
-												</div>
-											</div>
-										</td>
+						<?php
+						}
+						?>
+					</tbody>
+				</table>
 
 
-
-
-
-
-									</tr>
-
-								<?php
-							}
-							?>
-						</tbody>
-					</table>
 				</div>
 
 			<?php include('includes/footer.php'); ?>
