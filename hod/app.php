@@ -36,65 +36,110 @@
 						<thead>
 							<tr>
 								<th class="table-plus datatable-nosort">STAFF NAME</th>
-								<th>LEAVE TYPE</th>
-								<th>APPLIED DATE</th>
+								<th>LEAVE DURATION</th>
 								<th>MY REMARKS</th>
 								<th>DIRECTOR REMARKS</th>
 								<th class="datatable-nosort">ACTION</th>
 							</tr>
 						</thead>
 						<tbody>
+							<?php 
+							$sql = "SELECT 
+								tblleave.id AS lid,
+								tblemployees.FirstName,
+								tblemployees.location,
+								tblemployees.emp_id,
+								tblemployees.Gender,
+								tblemployees.Phonenumber,
+								tblemployees.EmailId,
+								tblemployees.Position_Staff,
+								tblemployees.Staff_ID,
+								tblleave.LeaveType,
+								tblleave.ToDate,
+								tblleave.FromDate,
+								tblleave.PostingDate,
+								tblleave.RequestedDays,
+								tblleave.DaysOutstand,
+								tblleave.Sign,
+								tblleave.HodRemarks,
+								tblleave.RegRemarks,
+								tblleave.HodSign,
+								tblleave.RegSign,
+								tblleave.HodDate,
+								tblleave.RegDate
+							FROM tblleave
+							JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
+							WHERE tblemployees.role = 'Staff'
+							AND tblemployees.Department = '$session_depart'
+							ORDER BY lid";
+
+							$query = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+
+							while ($row = mysqli_fetch_array($query)) {
+							?>
 							<tr>
 
-								<?php 
-								$sql = "SELECT tblleave.id as lid,tblemployees.FirstName,tblemployees.emp_id,tblemployees.Gender,tblemployees.Phonenumber,tblemployees.EmailId,tblemployees.Position_Staff,tblemployees.Staff_ID,tblleave.LeaveType,tblleave.ToDate,tblleave.FromDate,tblleave.PostingDate,tblleave.RequestedDays,tblleave.DaysOutstand,tblleave.Sign,tblleave.HodRemarks,tblleave.RegRemarks,tblleave.HodSign,tblleave.RegSign,tblleave.HodDate,tblleave.RegDate from tblleave join tblemployees on tblleave.empid=tblemployees.emp_id where tblemployees.role = 'Staff' and tblemployees.Department = '$session_depart' order by lid";
-									$query = mysqli_query($conn, $sql) or die(mysqli_error());
-									while ($row = mysqli_fetch_array($query)) {
-
-								 ?>  
-
+								<!-- Employee -->
 								<td class="table-plus">
 									<div class="name-avatar d-flex align-items-center">
 										<div class="avatar mr-2 flex-shrink-0">
-											<img src="<?php echo (!empty($row['location'])) ? '../uploads/'.$row['location'] : '../uploads/NO-IMAGE-AVAILABLE.jpg'; ?>" class="border-radius-100 shadow" width="40" height="40" alt="">
+											<img src="<?php echo (!empty($row['location'])) 
+												? '../uploads/'.$row['location'] 
+												: '../uploads/NO-IMAGE-AVAILABLE.jpg'; ?>" 
+												class="border-radius-100 shadow" width="40" height="40" alt="">
 										</div>
 										<div class="txt">
-											<div class="weight-600"><?php echo $row['FirstName'];?></div>
+											<div class="weight-600"><?php echo $row['FirstName']; ?></div>
 										</div>
 									</div>
 								</td>
-								<td><?php echo $row['LeaveType']; ?></td>
-	                            <td><?php echo date('d/m/Y', strtotime($row['PostingDate'])); ?></td>
 
-								<td><?php $stats=$row['HodRemarks'];
-	                             if($stats==1){
-	                              ?>
-	                                  <span style="color: green">Approved</span>
-	                                  <?php } if($stats==2)  { ?>
-	                                 <span style="color: red">Rejected</span>
-	                                  <?php } if($stats==0)  { ?>
-	                             <span style="color: blue">Pending</span>
-	                             <?php } ?>
-	                            </td>
-	                            <td><?php $stats=$row['RegRemarks'];
-	                             if($stats==1){
-	                              ?>
-	                                  <span style="color: green">Approved</span>
-	                                  <?php } if($stats==2)  { ?>
-	                                 <span style="color: red">Rejected</span>
-	                                  <?php } if($stats==0)  { ?>
-	                             <span style="color: blue">Pending</span>
-	                             <?php } ?>
-	                            </td>
+								<!-- Leave Duration -->
+								<td data-order="<?php echo date('Ymd', strtotime($row['FromDate'])); ?>">
+									<?php 
+										echo date("d/m/Y", strtotime($row['FromDate'])) . " to " . 
+											date("d/m/Y", strtotime($row['ToDate']));
+									?>
+								</td>
+
+								<!-- HOD Status -->
 								<td>
-									<a class="btn btn-link font-24 p-0 line-height-1" href="leave_details.php?leaveid=<?php echo $row['lid']; ?>">
+									<?php
+									if ($row['HodRemarks'] == 1) {
+										echo '<span style="color: green">Approved</span>';
+									} elseif ($row['HodRemarks'] == 2) {
+										echo '<span style="color: red">Rejected</span>';
+									} else {
+										echo '<span style="color: blue">Pending</span>';
+									}
+									?>
+								</td>
+
+								<!-- HR/Admin Status -->
+								<td>
+									<?php
+									if ($row['RegRemarks'] == 1) {
+										echo '<span style="color: green">Approved</span>';
+									} elseif ($row['RegRemarks'] == 2) {
+										echo '<span style="color: red">Rejected</span>';
+									} else {
+										echo '<span style="color: blue">Pending</span>';
+									}
+									?>
+								</td>
+
+								<!-- Action -->
+								<td>
+									<a class="btn btn-link font-24 p-0 line-height-1"
+									href="leave_details.php?leaveid=<?php echo $row['lid']; ?>">
 										<i class="dw dw-eye"></i>
 									</a>
 								</td>
 
 							</tr>
-							<?php }?>
+							<?php } ?>
 						</tbody>
+
 					</table>
 			   </div>
 			</div>

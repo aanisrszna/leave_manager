@@ -34,8 +34,7 @@
 						<thead>
 							<tr>
 								<th class="table-plus datatable-nosort">STAFF NAME</th>
-								<th>LEAVE TYPE</th>
-								<th>APPLIED DATE</th>
+								<th>LEAVE DURATION</th>
 								<th>MY REMARKS</th>
 								<th>DIRECTOR REMARKS</th>
 								<th class="datatable-nosort">ACTION</th>
@@ -65,8 +64,12 @@
 										</div>
 									</div>
 								</td>
-								<td><?php echo $row['LeaveType']; ?></td>
-								<td><?php echo date('d/m/Y', strtotime($row['PostingDate'])); ?></td>
+								<td data-order="<?php echo date('Ymd', strtotime($row['FromDate'])); ?>">
+									<?php 
+										echo date("d/m/Y", strtotime($row['FromDate'])) . " to " . 
+											date("d/m/Y", strtotime($row['ToDate']));
+									?>
+								</td>
 								<td>
 									<span style="color: green">Approved</span>
 								</td>

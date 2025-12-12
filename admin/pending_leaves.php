@@ -37,8 +37,7 @@
                     <thead>
                         <tr>
                             <th class="table-plus datatable-nosort">STAFF NAME</th>
-                            <th>LEAVE TYPE</th>
-                            <th>APPLIED DATE</th>
+                            <th>LEAVE DURATION</th>
                             <th>MANAGER STATUS</th>
                             <th>DIRECTOR STATUS</th>
                             <th class="datatable-nosort">ACTION</th>
@@ -47,7 +46,7 @@
                     <tbody>
                         <?php
                         $sql = "SELECT tblleave.id AS lid, tblemployees.FirstName, tblemployees.Role,
-                                tblleave.LeaveType, tblleave.PostingDate, tblleave.RegRemarks, tblleave.HodRemarks
+                                tblleave.LeaveType, tblleave.FromDate, tblleave.ToDate, tblleave.PostingDate, tblleave.RegRemarks, tblleave.HodRemarks
                                 FROM tblleave
                                 JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
                                 WHERE tblleave.RegRemarks = 0
@@ -64,8 +63,14 @@
                                         <div class="weight-600"><?php echo $row->FirstName; ?></div>
                                     </div>
                                 </td>
-                                <td><?php echo $row->LeaveType; ?></td>
-                                <td><?php echo date("d/m/Y", strtotime($row->PostingDate)); ?></td>
+                                <!-- Leave Duration -->
+								<td data-order="<?php echo date('Ymd', strtotime($row->FromDate)); ?>">
+									<?php 
+										echo date("d/m/Y", strtotime($row->FromDate)) . 
+											" to " . 
+											date("d/m/Y", strtotime($row->ToDate)); 
+									?>
+								</td>
                                 <td>
                                     <?php
                                     if ($row->Role === 'Manager' || $row->Role === 'Admin') {

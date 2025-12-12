@@ -37,82 +37,116 @@
                     <thead>
                         <tr>
                             <th class="table-plus datatable-nosort">STAFF NAME</th>
-                            <th>LEAVE TYPE</th>
-                            <th>APPLIED DATE</th>
+                            <th>LEAVE DURATION</th>
                             <th>MANAGER STATUS</th>
                             <th>DIRECTOR STATUS</th>
                             <th class="datatable-nosort">ACTION</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <?php
-                        $sql = "SELECT tblleave.id AS lid, tblemployees.FirstName, tblemployees.Role,
-                                tblleave.LeaveType, tblleave.PostingDate, tblleave.RegRemarks, tblleave.HodRemarks
+                        // Fetch approved (RegRemarks=1) leaves
+                        $sql = "SELECT 
+                                    tblleave.id AS lid,
+                                    tblemployees.FirstName,
+                                    tblemployees.Role,
+                                    tblleave.LeaveType,
+                                    tblleave.PostingDate,
+                                    tblleave.RegRemarks,
+                                    tblleave.HodRemarks,
+                                    tblleave.ToDate,
+                                    tblleave.FromDate
                                 FROM tblleave
                                 JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
-                                WHERE tblleave.RegRemarks = 1 
+                                WHERE tblleave.RegRemarks = 1
                                 ORDER BY tblleave.id DESC";
+
                         $query = $dbh->prepare($sql);
                         $query->execute();
                         $results = $query->fetchAll(PDO::FETCH_OBJ);
 
-                        foreach ($results as $row) {
-                            ?>
-                            <tr>
-                                <td class="table-plus">
-                                    <div class="txt">
-                                        <div class="weight-600"><?php echo $row->FirstName; ?></div>
-                                    </div>
-                                </td>
-                                <td><?php echo $row->LeaveType; ?></td>
-                                <td><?php echo date("d/m/Y", strtotime($row->PostingDate)); ?></td>
-                                <td>
-                                    <?php
-                                    if ($row->Role === 'Manager' || $row->Role === 'Admin') {
-                                        echo '<span style="color: gray">NA</span>';
-                                    } else {
-                                        $hodStatus = $row->HodRemarks;
-                                        if ($hodStatus == 1) {
+                        if ($results) {
+                            foreach ($results as $row) {
+                                // Safe values
+                                $staffName = htmlspecialchars($row->FirstName ?? '');
+                                $role      = $row->Role ?? '';
+
+                                $fromDateRaw = $row->FromDate ?? '';
+                                $toDateRaw   = $row->ToDate ?? '';
+
+                                $fromDateDisplay = $fromDateRaw ? date("d/m/Y", strtotime($fromDateRaw)) : '-';
+                                $toDateDisplay   = $toDateRaw ? date("d/m/Y", strtotime($toDateRaw)) : '-';
+
+                                // For DataTables sorting
+                                $orderDate = $fromDateRaw ? date('Ymd', strtotime($fromDateRaw)) : '';
+                                ?>
+                                <tr>
+                                    <td class="table-plus">
+                                        <div class="txt">
+                                            <div class="weight-600"><?php echo $staffName; ?></div>
+                                        </div>
+                                    </td>
+
+                                    <td data-order="<?php echo $orderDate; ?>">
+                                        <?php echo $fromDateDisplay . " to " . $toDateDisplay; ?>
+                                    </td>
+
+                                    <td>
+                                        <?php
+                                        // Manager/Admin = NA for manager status
+                                        if ($role === 'Manager' || $role === 'Admin') {
+                                            echo '<span style="color: gray">NA</span>';
+                                        } else {
+                                            $hodStatus = $row->HodRemarks;
+
+                                            if ($hodStatus == 1) {
+                                                echo '<span style="color: green">Approved</span>';
+                                            } elseif ($hodStatus == 2) {
+                                                echo '<span style="color: red">Rejected</span>';
+                                            } else {
+                                                echo '<span style="color: blue">Pending</span>';
+                                            }
+                                        }
+                                        ?>
+                                    </td>
+
+                                    <td>
+                                        <?php
+                                        $regStatus = $row->RegRemarks;
+
+                                        if ($regStatus == 1) {
                                             echo '<span style="color: green">Approved</span>';
-                                        } elseif ($hodStatus == 2) {
+                                        } elseif ($regStatus == 2) {
                                             echo '<span style="color: red">Rejected</span>';
                                         } else {
                                             echo '<span style="color: blue">Pending</span>';
                                         }
-                                    }
-                                    ?>
-                                </td>
-								<td>
-									<?php
-									$regStatus = $row->RegRemarks;
-									if ($regStatus == 1) {
-										echo '<span style="color: green">Approved</span>';
-									} elseif ($regStatus == 2) {
-										echo '<span style="color: red">Rejected</span>';
-									} else {
-										echo '<span style="color: blue">Pending</span>';
-									}
-									?>
-								</td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" type="button" data-toggle="dropdown">
-                                            <i class="dw dw-more"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="leave_details.php?leaveid=<?php echo $row->lid; ?>">
-                                                <i class="dw dw-eye"></i> View
-                                            </a>
+                                        ?>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                    type="button" data-toggle="dropdown">
+                                                <i class="dw dw-more"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="leave_details.php?leaveid=<?php echo (int)$row->lid; ?>">
+                                                    <i class="dw dw-eye"></i> View
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php
+                                    </td>
+                                </tr>
+                                <?php
+                            }
                         }
                         ?>
                     </tbody>
                 </table>
             </div>
+
 
             <?php include('includes/footer.php'); ?>
         </div>
