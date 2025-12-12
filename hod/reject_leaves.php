@@ -29,6 +29,7 @@
             <div class="pd-20">
                 <h2 class="text-blue h4">LEAVE APPLICATIONS REJECTED BY HOD</h2>
             </div>
+
             <div class="pb-20">
                 <table class="data-table table stripe hover nowrap">
                     <thead>
@@ -40,71 +41,119 @@
                             <th class="datatable-nosort">ACTION</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php 
-                        $sql = "SELECT tblleave.id as lid, tblemployees.FirstName, tblemployees.emp_id, tblemployees.Gender, tblemployees.Phonenumber, tblemployees.EmailId, tblemployees.Position_Staff, tblemployees.Staff_ID, tblleave.LeaveType, tblleave.ToDate, tblleave.FromDate, tblleave.PostingDate, tblleave.RequestedDays, tblleave.DaysOutstand, tblleave.Sign, tblleave.HodRemarks, tblleave.RegRemarks, tblleave.HodSign, tblleave.RegSign, tblleave.HodDate, tblleave.RegDate, tblemployees.location 
-                        FROM tblleave 
-                        JOIN tblemployees ON tblleave.empid = tblemployees.emp_id 
-                        WHERE tblemployees.role = 'Staff' 
-                        AND tblemployees.Department = '$session_depart' 
-                        AND tblleave.HodRemarks = 2 
-                        ORDER BY lid";
 
-                        $query = mysqli_query($conn, $sql) or die(mysqli_error($conn));
-                        while ($row = mysqli_fetch_array($query)) {
-                        ?>  
-                        <tr>
-                            <td class="table-plus">
-                                <div class="name-avatar d-flex align-items-center">
-                                    <div class="avatar mr-2 flex-shrink-0">
-                                        <img src="<?php echo (!empty($row['location'])) ? '../uploads/'.$row['location'] : '../uploads/NO-IMAGE-AVAILABLE.jpg'; ?>" class="border-radius-100 shadow" width="40" height="40" alt="">
+                    <tbody>
+                        <?php
+                        // ✅ Use prepared statement to avoid SQL injection
+                        $sql = "SELECT 
+                                    tl.id AS lid,
+                                    emp.FirstName,
+                                    emp.emp_id,
+                                    emp.Gender,
+                                    emp.Phonenumber,
+                                    emp.EmailId,
+                                    emp.Position_Staff,
+                                    emp.Staff_ID,
+                                    emp.location,
+                                    tl.LeaveType,
+                                    tl.ToDate,
+                                    tl.FromDate,
+                                    tl.PostingDate,
+                                    tl.RequestedDays,
+                                    tl.DaysOutstand,
+                                    tl.Sign,
+                                    tl.HodRemarks,
+                                    tl.RegRemarks,
+                                    tl.HodSign,
+                                    tl.RegSign,
+                                    tl.HodDate,
+                                    tl.RegDate
+                                FROM tblleave tl
+                                JOIN tblemployees emp 
+                                    ON tl.empid = emp.emp_id
+                                WHERE emp.role = 'Staff'
+                                AND emp.Department = ?
+                                AND tl.HodRemarks = 2
+                                ORDER BY tl.id DESC";
+
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("s", $session_depart);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        while ($row = $result->fetch_assoc()) {
+
+                            $staffName = htmlspecialchars($row['FirstName'] ?? '');
+
+                            $fromDateRaw = $row['FromDate'] ?? '';
+                            $toDateRaw   = $row['ToDate'] ?? '';
+
+                            $fromDate = $fromDateRaw ? date("d/m/Y", strtotime($fromDateRaw)) : '-';
+                            $toDate   = $toDateRaw ? date("d/m/Y", strtotime($toDateRaw)) : '-';
+
+                            $orderDate = $fromDateRaw ? date('Ymd', strtotime($fromDateRaw)) : '';
+
+                            $imgFile = (!empty($row['location']))
+                                ? '../uploads/' . basename($row['location'])
+                                : '../uploads/NO-IMAGE-AVAILABLE.jpg';
+                            ?>
+                            <tr>
+                                <td class="table-plus">
+                                    <div class="name-avatar d-flex align-items-center">
+                                        <div class="avatar mr-2 flex-shrink-0">
+                                            <img src="<?php echo $imgFile; ?>"
+                                                class="border-radius-100 shadow"
+                                                width="40" height="40" alt="">
+                                        </div>
+                                        <div class="txt">
+                                            <div class="weight-600"><?php echo $staffName; ?></div>
+                                        </div>
                                     </div>
-                                    <div class="txt">
-                                        <div class="weight-600"><?php echo $row['FirstName']; ?></div>
-                                    </div>
-                                </div>
-                            </td>
-							<td data-order="<?php echo date('Ymd', strtotime($row['FromDate'])); ?>">
-								<?php 
-									echo date("d/m/Y", strtotime($row['FromDate'])) . " to " . 
-										date("d/m/Y", strtotime($row['ToDate']));
-									?>
-							</td>
-                            <td>
-                                <?php
-                                $stats = $row['HodRemarks'];
-                                if ($stats == 1) {
-                                    echo '<span style="color: green">Approved</span>';
-                                } elseif ($stats == 2) {
-                                    echo '<span style="color: red">Rejected</span>';
-                                } else {
-                                    echo '<span style="color: blue">Pending</span>';
-                                }
-                                ?>
-                            </td>
-                            <td>
-                                <?php
-                                $stats = $row['RegRemarks'];
-                                if ($stats == 1) {
-                                    echo '<span style="color: green">Approved</span>';
-                                } elseif ($stats == 2) {
-                                    echo '<span style="color: red">Rejected</span>';
-                                } else {
-                                    echo '<span style="color: blue">Pending</span>';
-                                }
-                                ?>
-                            </td>
-                            <td>
-                                <a class="btn btn-link font-24 p-0 line-height-1" href="leave_details.php?leaveid=<?php echo $row['lid']; ?>">
-                                    <i class="dw dw-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                </td>
+
+                                <td data-order="<?php echo $orderDate; ?>">
+                                    <?php echo $fromDate . " to " . $toDate; ?>
+                                </td>
+
+                                <td>
+                                    <?php
+                                    $hod = (int)($row['HodRemarks'] ?? 0);
+                                    if ($hod === 1) {
+                                        echo '<span style="color: green">Approved</span>';
+                                    } elseif ($hod === 2) {
+                                        echo '<span style="color: red">Rejected</span>';
+                                    } else {
+                                        echo '<span style="color: blue">Pending</span>';
+                                    }
+                                    ?>
+                                </td>
+
+                                <td>
+                                    <?php
+                                    $reg = (int)($row['RegRemarks'] ?? 0);
+                                    if ($reg === 1) {
+                                        echo '<span style="color: green">Approved</span>';
+                                    } elseif ($reg === 2) {
+                                        echo '<span style="color: red">Rejected</span>';
+                                    } else {
+                                        echo '<span style="color: blue">Pending</span>';
+                                    }
+                                    ?>
+                                </td>
+
+                                <td>
+                                    <a class="btn btn-link font-24 p-0 line-height-1"
+                                    href="leave_details.php?leaveid=<?php echo (int)$row['lid']; ?>">
+                                        <i class="dw dw-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
                         <?php } ?>
                     </tbody>
                 </table>
             </div>
         </div>
+
 
         <?php include('includes/footer.php'); ?>
     </div>
