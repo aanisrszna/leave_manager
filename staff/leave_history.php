@@ -1,6 +1,11 @@
 <?php include('includes/header.php')?>
 <?php include('../includes/session.php')?>
-
+<?php
+$currentYear = date('Y');
+$selectedYear = isset($_GET['year']) && is_numeric($_GET['year'])
+    ? $_GET['year']
+    : $currentYear;
+?>
 <?php
 if (isset($_GET['delete'])) {
 	$delete = intval($_GET['delete']);
@@ -41,7 +46,10 @@ if (isset($_GET['delete'])) {
 					<div class="card-box height-100-p widget-style3">
 
 						<?php
-						$sql = "SELECT id from tblleave";
+						$sql = "SELECT id FROM tblleave 
+								WHERE empid = '$session_id'
+								AND YEAR(FromDate) = '$selectedYear'";
+
 						$query = $dbh -> prepare($sql);
 						$query->execute();
 						$results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -64,7 +72,12 @@ if (isset($_GET['delete'])) {
 
 						<?php 
 						 $status=1;
-						 $query = mysqli_query($conn,"select * from tblleave where empid = '$session_id' AND RegRemarks = '$status'")or die(mysqli_error());
+						 $query = mysqli_query($conn,"
+							SELECT * FROM tblleave
+							WHERE empid = '$session_id'
+							AND RegRemarks = '$status'
+							AND YEAR(FromDate) = '$selectedYear'
+						")or die(mysqli_error());
 						 $count_reg_staff = mysqli_num_rows($query);
 						 ?>
 
@@ -126,6 +139,23 @@ if (isset($_GET['delete'])) {
 						<h2 class="text-blue h4">ALL MY LEAVE</h2>
 					</div>
 				<div class="pb-20">
+
+				<form method="get" class="mb-3">
+					<div class="row">
+						<div class="col-md-3" style="margin-left: 20px;">
+							<label><strong>Filter by Year</strong></label>
+							<select name="year" class="form-control" onchange="this.form.submit()">
+								<?php
+								for ($y = $currentYear; $y >= ($currentYear - 5); $y--) {
+									$selected = ($y == $selectedYear) ? 'selected' : '';
+									echo "<option value='$y' $selected>$y</option>";
+								}
+								?>
+							</select>
+						</div>
+					</div>
+				</form>
+
 					<table class="data-table table stripe hover nowrap">
 						<thead>
 							<tr>

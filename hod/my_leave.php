@@ -1,6 +1,13 @@
 <?php include('includes/header.php')?>
 <?php include('../includes/session.php')?>
 <?php
+$currentYear = date('Y');
+$selectedYear = isset($_GET['year']) && is_numeric($_GET['year'])
+    ? $_GET['year']
+    : $currentYear;
+?>
+<?php
+
 if (isset($_GET['delete'])) {
 	$delete = intval($_GET['delete']);
 	// Ensure only delete leave if RegRemarks == 0
@@ -125,6 +132,21 @@ if (isset($_GET['delete'])) {
 						<h2 class="text-blue h4">ALL MY LEAVE</h2>
 					</div>
 				<div class="pb-20">
+					<form method="get" class="mb-3">
+						<div class="row">
+							<div class="col-md-3" style="margin-left: 20px;">
+								<label><strong>Filter by Year</strong></label>
+								<select name="year" class="form-control" onchange="this.form.submit()">
+									<?php
+									for ($y = $currentYear; $y >= ($currentYear - 5); $y--) {
+										$selected = ($y == $selectedYear) ? 'selected' : '';
+										echo "<option value='$y' $selected>$y</option>";
+									}
+									?>
+								</select>
+							</div>
+						</div>
+					</form>
 					<table class="data-table table stripe hover nowrap">
 						<thead>
 							<tr>
@@ -139,9 +161,11 @@ if (isset($_GET['delete'])) {
 						<?php 
 						$sql = "SELECT * FROM tblleave 
 								WHERE empid = :empid 
+								AND YEAR(FromDate) = :year
 								ORDER BY PostingDate DESC";
 						$query = $dbh->prepare($sql);
 						$query->bindParam(':empid', $session_id, PDO::PARAM_STR);
+						$query->bindParam(':year', $selectedYear, PDO::PARAM_INT);
 						$query->execute();
 						$results = $query->fetchAll(PDO::FETCH_OBJ);
 

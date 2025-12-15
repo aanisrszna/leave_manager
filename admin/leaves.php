@@ -1,6 +1,12 @@
 <?php include('includes/header.php')?>
 <?php include('../includes/session.php')?>
 <?php
+$currentYear = date('Y');
+
+// Get selected year from GET, default = current year
+$selectedYear = isset($_GET['year']) && is_numeric($_GET['year'])
+    ? $_GET['year']
+    : $currentYear;
 if (isset($_GET['delete'])) {
     $delete = $_GET['delete'];
 
@@ -89,6 +95,22 @@ if (isset($_GET['delete'])) {
 					<h2 class="text-blue h4">ALL APPLICATIONS</h2>
 				</div>
 				<div class="pb-20">
+				<form method="get" class="mb-3">
+					<div class="row">
+						<div class="col-md-3" style="margin-left: 20px;">
+							<label><strong>Filter by Year</strong></label>
+							<select name="year" class="form-control" onchange="this.form.submit()">
+								<?php
+								for ($y = $currentYear; $y >= ($currentYear - 5); $y--) {
+									$selected = ($y == $selectedYear) ? 'selected' : '';
+									echo "<option value='$y' $selected>$y</option>";
+								}
+								?>
+							</select>
+						</div>
+					</div>
+				</form>
+					
 				<table class="data-table table stripe hover nowrap">
 					<thead>
 						<tr>
@@ -101,16 +123,19 @@ if (isset($_GET['delete'])) {
 					</thead>
 					<tbody>
 						<?php
-						$sql = "SELECT tblleave.id AS lid, tblemployees.FirstName, tblemployees.Role,
-								tblleave.FromDate, tblleave.ToDate,
-								tblleave.RegRemarks, tblleave.HodRemarks
-								FROM tblleave
-								JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
-								ORDER BY tblleave.id DESC";
+							$sql = "SELECT tblleave.id AS lid, tblemployees.FirstName, tblemployees.Role,
+									tblleave.FromDate, tblleave.ToDate,
+									tblleave.RegRemarks, tblleave.HodRemarks
+									FROM tblleave
+									JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
+									WHERE YEAR(tblleave.FromDate) = :year
+									ORDER BY tblleave.id DESC";
 
-						$query = $dbh->prepare($sql);
-						$query->execute();
-						$results = $query->fetchAll(PDO::FETCH_OBJ);
+							$query = $dbh->prepare($sql);
+							$query->bindParam(':year', $selectedYear, PDO::PARAM_INT);
+							$query->execute();
+							$results = $query->fetchAll(PDO::FETCH_OBJ);
+
 
 						foreach ($results as $row) {
 						?>

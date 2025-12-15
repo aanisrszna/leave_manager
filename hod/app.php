@@ -5,7 +5,13 @@
 
 	<?php include('includes/right_sidebar.php')?>
 
-	<?php include('includes/left_sidebar.php')?>
+	<?php include('includes/left_sidebar.php')?>z
+	<?php
+	$currentYear = date('Y');
+	$selectedYear = isset($_GET['year']) && is_numeric($_GET['year'])
+		? $_GET['year']
+		: $currentYear;
+	?>
 
 	<div class="mobile-menu-overlay"></div>
 
@@ -32,6 +38,22 @@
 						<h2 class="text-blue h4">ALL LEAVE APPLICATIONS</h2>
 					</div>
 				<div class="pb-20">
+					<form method="get" class="mb-3">
+						<div class="row">
+							<div class="col-md-3" style="margin-left: 20px;">
+								<label><strong>Filter by Year</strong></label>
+								<select name="year" class="form-control" onchange="this.form.submit()">
+									<?php
+									for ($y = $currentYear; $y >= ($currentYear - 5); $y--) {
+										$selected = ($y == $selectedYear) ? 'selected' : '';
+										echo "<option value='$y' $selected>$y</option>";
+									}
+									?>
+								</select>
+							</div>
+						</div>
+					</form>
+
 					<table class="data-table table stripe hover nowrap">
 						<thead>
 							<tr>
@@ -71,6 +93,7 @@
 							JOIN tblemployees ON tblleave.empid = tblemployees.emp_id
 							WHERE tblemployees.role = 'Staff'
 							AND tblemployees.Department = '$session_depart'
+							AND YEAR(tblleave.FromDate) = '$selectedYear'
 							ORDER BY lid";
 
 							$query = mysqli_query($conn, $sql) or die(mysqli_error($conn));

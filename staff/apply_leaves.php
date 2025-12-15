@@ -276,7 +276,25 @@ if (isset($error_message)) {
                                     </div>
                                     <?php endif ?>
                                 </div>
+
+
+
                                 <div class="row">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Start Leave Date</label>
+                                            <input id="date_form" name="date_from" type="date" class="form-control" required="true" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label>End Leave Date</label>
+                                            <input id="date_to" name="date_to" type="date" class="form-control" required="true" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                                                <div class="row">
                                     <div class="col-md-12 col-sm-12">
                                         <div class="form-group">
                                             <label>Leave Type</label>
@@ -313,22 +331,13 @@ if (isset($error_message)) {
                                                 ?>
                                             </select>
                                         </div>
-                                    </div>
-                                </div>
+                                        <small id="lateLeaveNotice" class="text-danger" style="display:none; font-size: 1rem;">
+                                            ⚠ Due to late submission, this Annual Leave is automatically categorized as an 
+                                            <strong>Emergency Annual Leave</strong>.
+                                        </small>
 
 
-                                <div class="row">
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label>Start Leave Date</label>
-                                            <input id="date_form" name="date_from" type="date" class="form-control" required="true" autocomplete="off">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label>End Leave Date</label>
-                                            <input id="date_to" name="date_to" type="date" class="form-control" required="true" autocomplete="off">
-                                        </div>
+                                        <br>
                                     </div>
                                 </div>
 
