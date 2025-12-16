@@ -4,30 +4,48 @@ include('../includes/session.php');
 $get_id = $_GET['edit']; 
 
 if (isset($_POST['edit'])) {
-    // Get values from the form and sanitize inputs
-    $leavetype    = htmlspecialchars($_POST['leavetype'], ENT_QUOTES, 'UTF-8');
-    $description  = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
-    $assigned_day = floatval($_POST['assigned_day']); // decimal supported
 
-    // Normalize radios (DB uses 'Yes' / 'No')
-    $needproof  = (isset($_POST['needproof'])  && $_POST['needproof']  === 'Yes') ? 'Yes' : 'No';
-    $isdisplay  = (isset($_POST['is_display']) && $_POST['is_display'] === 'Yes') ? 'Yes' : 'No';
+    $leavetype    = trim($_POST['leavetype']);
+    $description  = trim($_POST['description']);
+    $assigned_day = floatval($_POST['assigned_day']);
 
-    // Update query using prepared statements to avoid SQL injection
-    $stmt = $conn->prepare("UPDATE tblleavetype 
-                            SET LeaveType = ?, Description = ?, assigned_day = ?, NeedProof = ?, IsDisplay = ?
-                            WHERE id = ?");
-    // s = string, s = string, d = double/float, s = string, s = string, i = integer
-    $stmt->bind_param("sssdsi", $leavetype, $description, $assigned_day, $needproof, $isdisplay, $get_id);
+    $needproof = ($_POST['needproof'] === 'Yes') ? 'Yes' : 'No';
+    $isdisplay = ($_POST['is_display'] === 'Yes') ? 'Yes' : 'No';
+
+    $stmt = $conn->prepare("
+        UPDATE tblleavetype 
+        SET LeaveType = ?, 
+            Description = ?, 
+            assigned_day = ?, 
+            NeedProof = ?, 
+            IsDisplay = ?
+        WHERE id = ?
+    ");
+
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param(
+        "ssdssi",
+        $leavetype,
+        $description,
+        $assigned_day,
+        $needproof,
+        $isdisplay,
+        $get_id
+    );
 
     if ($stmt->execute()) {
         echo "<script>alert('Leave Type updated successfully');</script>";
-        echo "<script type='text/javascript'> document.location = 'leave_type.php'; </script>";
+        echo "<script>window.location='leave_type.php';</script>";
     } else {
-        echo "<script>alert('Error updating Leave Type');</script>";
+        echo "<script>alert('Update failed: {$stmt->error}');</script>";
     }
+
     $stmt->close();
 }
+
 ?>
 
 <body>
