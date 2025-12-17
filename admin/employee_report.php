@@ -1,18 +1,9 @@
 <?php
-// Include session and config files
 include('../includes/session.php');
 include('../includes/config.php');
 require_once('../TCPDF-main/tcpdf.php');
 
 class MYPDF extends TCPDF {
-    private $fullname;
-    private $staff_position;
-
-    public function __construct($fullname, $staff_position) {
-        parent::__construct();
-        $this->fullname = $fullname;
-        $this->staff_position = $staff_position;
-    }
 
     public function Header() {
         $this->Image('../vendors/images/riverraven.png', 160, 10, 30);
@@ -26,52 +17,63 @@ class MYPDF extends TCPDF {
     }
 }
 
-// Example user info (replace dynamically if needed)
-$fullname = 'John Doe';
-$staff_position = 'Software Engineer';
+/* =========================
+   PDF INIT
+   ========================= */
 
-// Create PDF
-$pdf = new MYPDF($fullname, $staff_position);
+$pdf = new MYPDF();
 $pdf->SetCreator('Your Company');
 $pdf->SetTitle('Employee Leave Report');
 
 $currentYear = date('Y');
 $statusApproved = 1;
 
-// Add first page
 $pdf->AddPage();
-
-// Title
 $pdf->SetFont('helvetica', 'B', 14);
 $pdf->Cell(0, 10, 'Employee Leave Information Report', 0, 1, 'L');
 
 /* =========================
-   SUMMARY OF LEAVE TAKEN
+   SUMMARY SECTION
    ========================= */
 
-$pdf->Ln(5);
+$pdf->Ln(4);
 $pdf->SetFont('helvetica', 'B', 13);
-$pdf->Cell(0, 10, 'Summary of Employees Leave Taken (' . $currentYear . ')', 0, 1, 'L');
-$pdf->Ln(2);
+$pdf->Cell(0, 10, "Summary of Employees Leave Taken ($currentYear)", 0, 1);
 
-/* ---- Detect Annual vs Medical Leave Types ---- */
-$typeSql = "SELECT id, LeaveType FROM tblleavetype WHERE IsDisplay = 'Yes'";
+/* =========================
+   DETERMINE LEAVE GROUPING
+   ========================= */
+
+$typeSql = "
+SELECT id, LeaveType, IsDisplay
+FROM tblleavetype
+WHERE IsDisplay = 'Yes'
+";
 $typeStmt = $dbh->prepare($typeSql);
 $typeStmt->execute();
 $typeRows = $typeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$annualTypeIds = [];
+$annualTypeIds  = [];
 $medicalTypeIds = [];
 
 foreach ($typeRows as $t) {
-    if (stripos($t['LeaveType'], 'Annual') === 0) {
-        $annualTypeIds[] = (int)$t['id'];
-    } elseif (preg_match('/medical|hospital/i', $t['LeaveType'])) {
+
+    $name = strtolower($t['LeaveType']);
+
+    // Medical bucket
+    if (preg_match('/medical|hospital/i', $name)) {
         $medicalTypeIds[] = (int)$t['id'];
+    }
+    // Annual bucket = Annual + other IsDisplay Yes
+    else {
+        $annualTypeIds[] = (int)$t['id'];
     }
 }
 
-/* ---- Fetch Approved Leave Taken ---- */
+/* =========================
+   FETCH APPROVED LEAVE TAKEN
+   ========================= */
+
 $sql = "
 SELECT 
     e.emp_id,
@@ -96,10 +98,14 @@ $q->bindParam(':year', $currentYear, PDO::PARAM_INT);
 $q->execute();
 $rows = $q->fetchAll(PDO::FETCH_ASSOC);
 
-/* ---- Aggregate Leave Taken ---- */
+/* =========================
+   AGGREGATE PER EMPLOYEE
+   ========================= */
+
 $summary = [];
 
 foreach ($rows as $r) {
+
     $name = $r['FirstName'];
     $type = (int)$r['leave_type_id'];
     $days = (float)$r['days_taken'];
@@ -120,8 +126,9 @@ foreach ($rows as $r) {
     }
 }
 
-/* ---- Fetch Carry Forward (available_day for Annual leave only) ---- */
-$annualIdsCsv = implode(',', $annualTypeIds);
+/* =========================
+   CARRY FORWARD (ANNUAL ONLY)
+   ========================= */
 
 $cfSql = "
 SELECT 
@@ -147,79 +154,45 @@ foreach ($cfRows as $r) {
     $carryForward[$r['FirstName']] = (float)$r['carry_forward'];
 }
 
-/* ---- Summary Table Header ---- */
+/* =========================
+   SUMMARY TABLE
+   ========================= */
+
+$pdf->Ln(2);
 $pdf->SetFont('helvetica', 'B', 10);
-$pdf->Cell(50, 8, 'Employee', 1, 0, 'C');
-$pdf->Cell(30, 8, 'Annual', 1, 0, 'C');
+$pdf->Cell(50, 8, 'Employee', 1);
+$pdf->Cell(30, 8, 'Annual*', 1, 0, 'C');
 $pdf->Cell(30, 8, 'Medical', 1, 0, 'C');
 $pdf->Cell(25, 8, 'Total', 1, 0, 'C');
 $pdf->Cell(30, 8, 'Carry Forward', 1, 1, 'C');
 
-/* ---- Summary Table Body ---- */
 $pdf->SetFont('helvetica', '', 10);
 
 foreach ($summary as $name => $data) {
 
     $total = $data['annual'] + $data['medical'];
-    $cf = $carryForward[$name] ?? 0;
+    $cf    = $carryForward[$name] ?? 0;
 
-    $pdf->Cell(50, 8, $name, 1, 0, 'L');
+    $pdf->Cell(50, 8, $name, 1);
     $pdf->Cell(30, 8, number_format($data['annual'], 1), 1, 0, 'C');
     $pdf->Cell(30, 8, number_format($data['medical'], 1), 1, 0, 'C');
     $pdf->Cell(25, 8, number_format($total, 1), 1, 0, 'C');
     $pdf->Cell(30, 8, number_format($cf, 1), 1, 1, 'C');
 }
 
-/* ---- New Page for Detailed Leave Balances ---- */
-$pdf->AddPage();
-$pdf->SetFont('helvetica', '', 10);
+/* =========================
+   FOOTNOTE
+   ========================= */
 
-// Employee list
-$sql = "
-SELECT DISTINCT e.emp_id, e.FirstName
-FROM employee_leave el
-JOIN tblemployees e ON el.emp_id = e.emp_id
-WHERE e.Status NOT IN ('Inactive','Offline')
-ORDER BY e.FirstName
-";
-$query = $dbh->prepare($sql);
-$query->execute();
-$employees = $query->fetchAll(PDO::FETCH_OBJ);
+$pdf->Ln(3);
+$pdf->SetFont('helvetica', 'I', 9);
+$pdf->MultiCell(0, 5, 
+    "* Annual includes Annual Leave and other leave types marked as IsDisplay = Yes (excluding Medical/Hospital)."
+);
 
-/* ---- Per Employee Details ---- */
-foreach ($employees as $employee) {
+/* =========================
+   OUTPUT
+   ========================= */
 
-    $pdf->Ln(10);
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->Cell(0, 10, 'Leave Information for ' . htmlentities($employee->FirstName), 0, 1, 'L');
-
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(90, 7, 'Leave Type', 1, 0, 'C');
-    $pdf->Cell(40, 7, 'Available Days', 1, 1, 'C');
-
-    $sql_leaves = "
-    SELECT lt.LeaveType, el.available_day
-    FROM employee_leave el
-    JOIN tblleavetype lt ON el.leave_type_id = lt.id
-    WHERE el.emp_id = :emp_id
-    ";
-
-    $query_leaves = $dbh->prepare($sql_leaves);
-    $query_leaves->bindParam(':emp_id', $employee->emp_id, PDO::PARAM_INT);
-    $query_leaves->execute();
-    $leave_details = $query_leaves->fetchAll(PDO::FETCH_OBJ);
-
-    $pdf->SetFont('helvetica', '', 10);
-    foreach ($leave_details as $leave) {
-        $pdf->Cell(90, 7, htmlentities($leave->LeaveType), 1, 0, 'L');
-        $pdf->Cell(40, 7, number_format($leave->available_day, 1), 1, 1, 'C');
-    }
-
-    if ($pdf->GetY() > 250) {
-        $pdf->AddPage();
-    }
-}
-
-// Output PDF
 $pdf->Output('employee_leave_report.pdf', 'I');
 ?>
