@@ -186,9 +186,15 @@ foreach ($summary as $name => $data) {
 
 $pdf->Ln(3);
 $pdf->SetFont('helvetica', 'I', 9);
-$pdf->MultiCell(0, 5, 
-    "* Annual includes Annual Leave and other leave types marked as IsDisplay = Yes (excluding Medical/Hospital)."
+$pdf->MultiCell(
+    0,
+    5,
+    "* Annual and Medical leave figures reflect approved leave taken during the 2025 calendar year only.",
+    0,
+    'L'
 );
+
+
 
 /* =========================
    OUTPUT
