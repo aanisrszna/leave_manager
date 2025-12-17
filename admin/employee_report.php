@@ -25,7 +25,7 @@ $pdf = new MYPDF();
 $pdf->SetCreator('Your Company');
 $pdf->SetTitle('Employee Leave Report');
 
-$currentYear = 2025;
+$currentYear = date('Y');
 $statusApproved = 1;
 
 $pdf->AddPage();
@@ -41,11 +41,11 @@ $pdf->SetFont('helvetica', 'B', 13);
 $pdf->Cell(0, 10, "Summary of Employees Leave Taken ($currentYear)", 0, 1);
 
 /* =========================
-   LEAVE TYPE GROUPING
+   DETERMINE LEAVE GROUPING
    ========================= */
 
 $typeSql = "
-SELECT id, LeaveType
+SELECT id, LeaveType, IsDisplay
 FROM tblleavetype
 WHERE IsDisplay = 'Yes'
 ";
@@ -57,16 +57,21 @@ $annualTypeIds  = [];
 $medicalTypeIds = [];
 
 foreach ($typeRows as $t) {
-    if (preg_match('/medical|hospital/i', $t['LeaveType'])) {
+
+    $name = strtolower($t['LeaveType']);
+
+    // Medical bucket
+    if (preg_match('/medical|hospital/i', $name)) {
         $medicalTypeIds[] = (int)$t['id'];
-    } else {
-        // Annual + other IsDisplay Yes
+    }
+    // Annual bucket = Annual + other IsDisplay Yes
+    else {
         $annualTypeIds[] = (int)$t['id'];
     }
 }
 
 /* =========================
-   FETCH APPROVED LEAVE
+   FETCH APPROVED LEAVE TAKEN
    ========================= */
 
 $sql = "
@@ -130,8 +135,10 @@ SELECT
     e.FirstName,
     COALESCE(SUM(el.available_day),0) AS carry_forward
 FROM tblemployees e
-LEFT JOIN employee_leave el ON el.emp_id = e.emp_id
-LEFT JOIN tblleavetype lt ON el.leave_type_id = lt.id
+LEFT JOIN employee_leave el 
+    ON el.emp_id = e.emp_id
+LEFT JOIN tblleavetype lt 
+    ON el.leave_type_id = lt.id
 WHERE 
     e.Status NOT IN ('Inactive','Offline')
     AND lt.LeaveType LIKE 'Annual%'
@@ -153,23 +160,23 @@ foreach ($cfRows as $r) {
 
 $pdf->Ln(2);
 $pdf->SetFont('helvetica', 'B', 10);
-$pdf->Cell(45, 8, 'Employee', 1);
-$pdf->Cell(28, 8, 'Annual*', 1, 0, 'C');
-$pdf->Cell(28, 8, 'Medical', 1, 0, 'C');
-$pdf->Cell(32, 8, 'Total Leave 2025', 1, 0, 'C');
+$pdf->Cell(50, 8, 'Employee', 1);
+$pdf->Cell(30, 8, 'Annual*', 1, 0, 'C');
+$pdf->Cell(30, 8, 'Medical', 1, 0, 'C');
+$pdf->Cell(25, 8, 'Total', 1, 0, 'C');
 $pdf->Cell(30, 8, 'Carry Forward', 1, 1, 'C');
 
 $pdf->SetFont('helvetica', '', 10);
 
 foreach ($summary as $name => $data) {
 
-    $totalLeave2025 = $data['annual'] + $data['medical'];
-    $cf = $carryForward[$name] ?? 0;
+    $total = $data['annual'] + $data['medical'];
+    $cf    = $carryForward[$name] ?? 0;
 
-    $pdf->Cell(45, 8, $name, 1);
-    $pdf->Cell(28, 8, number_format($data['annual'], 1), 1, 0, 'C');
-    $pdf->Cell(28, 8, number_format($data['medical'], 1), 1, 0, 'C');
-    $pdf->Cell(32, 8, number_format($totalLeave2025, 1), 1, 0, 'C');
+    $pdf->Cell(50, 8, $name, 1);
+    $pdf->Cell(30, 8, number_format($data['annual'], 1), 1, 0, 'C');
+    $pdf->Cell(30, 8, number_format($data['medical'], 1), 1, 0, 'C');
+    $pdf->Cell(25, 8, number_format($total, 1), 1, 0, 'C');
     $pdf->Cell(30, 8, number_format($cf, 1), 1, 1, 'C');
 }
 
@@ -179,9 +186,7 @@ foreach ($summary as $name => $data) {
 
 $pdf->Ln(3);
 $pdf->SetFont('helvetica', 'I', 9);
-$pdf->MultiCell(
-    0,
-    5,
+$pdf->MultiCell(0, 5, 
     "* Annual includes Annual Leave and other leave types marked as IsDisplay = Yes (excluding Medical/Hospital)."
 );
 
@@ -189,5 +194,5 @@ $pdf->MultiCell(
    OUTPUT
    ========================= */
 
-$pdf->Output('employee_leave_report_2025.pdf', 'I');
+$pdf->Output('employee_leave_report.pdf', 'I');
 ?>
