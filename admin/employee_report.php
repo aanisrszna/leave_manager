@@ -161,8 +161,8 @@ foreach ($cfRows as $r) {
 $pdf->Ln(2);
 $pdf->SetFont('helvetica', 'B', 10);
 $pdf->Cell(50, 8, 'Employee', 1);
-$pdf->Cell(30, 8, 'Annual*', 1, 0, 'C');
-$pdf->Cell(30, 8, 'Medical', 1, 0, 'C');
+$pdf->Cell(30, 8, 'Annual Taken', 1, 0, 'C');
+$pdf->Cell(30, 8, 'Medical Taken', 1, 0, 'C');
 $pdf->Cell(25, 8, 'Total', 1, 0, 'C');
 $pdf->Cell(30, 8, 'Carry Forward', 1, 1, 'C');
 
@@ -170,15 +170,30 @@ $pdf->SetFont('helvetica', '', 10);
 
 foreach ($summary as $name => $data) {
 
-    $total = $data['annual'] + $data['medical'];
-    $cf    = $carryForward[$name] ?? 0;
+    $annualTaken  = $data['annual'];
+    $medicalTaken = $data['medical'];
+
+    $cf = $carryForward[$name] ?? 0;
+
+    // Annual: taken / (taken + CF)
+    $annualTotal = $annualTaken + $cf;
+    $annualDisplay = ($annualTotal > 0)
+        ? number_format($annualTaken, 1) . ' / ' . number_format($annualTotal, 1)
+        : '0 / 0';
+
+    // Medical: taken / 14 (fixed entitlement)
+    $medicalDisplay = number_format($medicalTaken, 1) . ' / 14.0';
+
+    $total = $annualTaken + $medicalTaken;
 
     $pdf->Cell(50, 8, $name, 1);
-    $pdf->Cell(30, 8, number_format($data['annual'], 1), 1, 0, 'C');
-    $pdf->Cell(30, 8, number_format($data['medical'], 1), 1, 0, 'C');
+    $pdf->Cell(30, 8, $annualDisplay, 1, 0, 'C');
+    $pdf->Cell(30, 8, $medicalDisplay, 1, 0, 'C');
     $pdf->Cell(25, 8, number_format($total, 1), 1, 0, 'C');
     $pdf->Cell(30, 8, number_format($cf, 1), 1, 1, 'C');
 }
+
+
 
 /* =========================
    FOOTNOTE
@@ -189,7 +204,7 @@ $pdf->SetFont('helvetica', 'I', 9);
 $pdf->MultiCell(
     0,
     5,
-    "* Annual and Medical leave figures reflect approved leave taken during the 2025 calendar year only.",
+    "* Annual and Medical leave displat reflect approved leave taken during the 2025 calendar year only.",
     0,
     'L'
 );
