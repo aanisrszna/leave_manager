@@ -16,9 +16,13 @@ class MYPDF extends TCPDF {
     public function Footer() {
         $this->SetY(-15);
         $this->SetFont('helvetica', 'I', 8);
-        $this->Cell(0, 10,
+        $this->Cell(
+            0,
+            10,
             'Page ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages(),
-            0, 0, 'C'
+            0,
+            0,
+            'C'
         );
     }
 }
@@ -47,7 +51,7 @@ $pdf->Cell(0, 8, "Summary of Employees Leave Taken ($currentYear)", 0, 1);
 /* =========================
    LEAVE TYPE GROUPING
    ========================= */
-$typeSql = "SELECT id, LeaveType FROM tblleavetype WHERE IsDisplay='Yes'";
+$typeSql = "SELECT id, LeaveType FROM tblleavetype WHERE IsDisplay = 'Yes'";
 $typeStmt = $dbh->prepare($typeSql);
 $typeStmt->execute();
 $typeRows = $typeStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -102,22 +106,28 @@ foreach ($rows as $r) {
     $days = (float)$r['days_taken'];
 
     if (!isset($summary[$name])) {
-        $summary[$name] = ['annual' => 0, 'medical' => 0];
+        $summary[$name] = [
+            'annual'  => 0,
+            'medical' => 0
+        ];
     }
 
     if (in_array($type, $annualTypeIds, true)) {
         $summary[$name]['annual'] += $days;
     }
+
     if (in_array($type, $medicalTypeIds, true)) {
         $summary[$name]['medical'] += $days;
     }
 }
 
 /* =========================
-   CARRY FORWARD
+   CARRY FORWARD (ANNUAL)
    ========================= */
 $cfSql = "
-SELECT e.FirstName, COALESCE(SUM(el.available_day),0) AS cf
+SELECT 
+    e.FirstName,
+    COALESCE(SUM(el.available_day),0) AS carry_forward
 FROM tblemployees e
 LEFT JOIN employee_leave el ON el.emp_id = e.emp_id
 LEFT JOIN tblleavetype lt ON el.leave_type_id = lt.id
@@ -132,17 +142,18 @@ $cfRows = $cfStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $carryForward = [];
 foreach ($cfRows as $r) {
-    $carryForward[$r['FirstName']] = (float)$r['cf'];
+    $carryForward[$r['FirstName']] = (float)$r['carry_forward'];
 }
 
 /* =========================
-   SUMMARY TABLE
+   SUMMARY TABLE (WITH CF)
    ========================= */
 $pdf->SetFont('helvetica', 'B', 10);
-$pdf->Cell(50, 8, 'Employee', 1);
+$pdf->Cell(45, 8, 'Employee', 1);
 $pdf->Cell(35, 8, 'Annual Taken', 1, 0, 'C');
-$pdf->Cell(35, 8, 'Medical Taken', 1, 0, 'C');
-$pdf->Cell(30, 8, 'Total', 1, 1, 'C');
+$pdf->Cell(30, 8, 'Medical Taken', 1, 0, 'C');
+$pdf->Cell(20, 8, 'Total', 1, 0, 'C');
+$pdf->Cell(25, 8, 'Carry Forward', 1, 1, 'C');
 
 $pdf->SetFont('helvetica', '', 10);
 
@@ -151,10 +162,39 @@ foreach ($summary as $name => $data) {
     $cf = $carryForward[$name] ?? 0;
     $annualTotal = $data['annual'] + $cf;
 
-    $pdf->Cell(50, 8, $name, 1);
-    $pdf->Cell(35, 8, number_format($data['annual'],1)." / ".number_format($annualTotal,1), 1, 0, 'C');
-    $pdf->Cell(35, 8, number_format($data['medical'],1)." / 14.0", 1, 0, 'C');
-    $pdf->Cell(30, 8, number_format($data['annual']+$data['medical'],1), 1, 1, 'C');
+    $pdf->Cell(45, 8, $name, 1);
+    $pdf->Cell(
+        35,
+        8,
+        number_format($data['annual'],1).' / '.number_format($annualTotal,1),
+        1,
+        0,
+        'C'
+    );
+    $pdf->Cell(
+        30,
+        8,
+        number_format($data['medical'],1).' / 14.0',
+        1,
+        0,
+        'C'
+    );
+    $pdf->Cell(
+        20,
+        8,
+        number_format($data['annual'] + $data['medical'],1),
+        1,
+        0,
+        'C'
+    );
+    $pdf->Cell(
+        25,
+        8,
+        number_format($cf,1),
+        1,
+        1,
+        'C'
+    );
 }
 
 /* =========================
@@ -165,7 +205,7 @@ $annualData = array_column($summary, 'annual');
 $medicalData = array_column($summary, 'medical');
 
 /* =========================
-   BAR CHART
+   BAR CHART (UNCHANGED)
    ========================= */
 $pdf->Ln(12);
 $pdf->SetFont('helvetica', 'B', 12);
@@ -180,13 +220,11 @@ $barWidth = 5;
 $gap = 10;
 $x = $startX;
 
-/* ---------- AXES ---------- */
-// Y-axis
+// Axes
 $pdf->Line($startX - 5, $startY, $startX - 5, $startY + $chartHeight);
-// X-axis
 $pdf->Line($startX - 5, $startY + $chartHeight, 190, $startY + $chartHeight);
 
-/* ---------- Y SCALE ---------- */
+// Y-scale
 $pdf->SetFont('helvetica', '', 7);
 for ($i = 0; $i <= 5; $i++) {
     $val = round(($maxValue / 5) * $i);
@@ -196,25 +234,20 @@ for ($i = 0; $i <= 5; $i++) {
     $pdf->Cell(15, 6, $val, 0, 0, 'R');
 }
 
-/* =========================
-   LEGEND (TOP-RIGHT)
-   ========================= */
+// Legend (top-right, adjusted down)
 $legendX = 150;
-$legendY = $startY - 2;
+$legendY = $startY + 4;
 
 $pdf->SetFont('helvetica', '', 9);
-
-// Annual
 $pdf->SetFillColor(54,162,235);
 $pdf->Rect($legendX, $legendY, 4, 4, 'F');
 $pdf->Text($legendX + 6, $legendY, 'Annual');
 
-// Medical
 $pdf->SetFillColor(255,99,132);
 $pdf->Rect($legendX, $legendY + 6, 4, 4, 'F');
 $pdf->Text($legendX + 6, $legendY + 6, 'Medical');
 
-/* ---------- BARS ---------- */
+// Bars
 $pdf->SetFont('helvetica', '', 8);
 
 foreach ($employees as $idx => $name) {
@@ -231,7 +264,7 @@ foreach ($employees as $idx => $name) {
     $pdf->SetFillColor(255,99,132);
     $pdf->Rect($x + $barWidth, $startY + $chartHeight - $hM, $barWidth, $hM, 'F');
 
-    // Rotated X-label (short name)
+    // Rotated label (short name)
     $short = explode(' ', $name)[0];
     $pdf->StartTransform();
     $pdf->Rotate(45, $x + 3, $startY + $chartHeight + 5);
