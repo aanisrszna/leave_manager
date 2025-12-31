@@ -149,7 +149,7 @@ foreach ($cfRows as $r) {
    SUMMARY TABLE (WITH CF)
    ========================= */
 $pdf->SetFont('helvetica', 'B', 10);
-$pdf->Cell(45, 8, 'Employee', 1);
+$pdf->Cell(60, 8, 'Employee', 1);
 $pdf->Cell(35, 8, 'Annual Taken', 1, 0, 'C');
 $pdf->Cell(30, 8, 'Medical Taken', 1, 0, 'C');
 $pdf->Cell(20, 8, 'Total', 1, 0, 'C');
@@ -162,7 +162,7 @@ foreach ($summary as $name => $data) {
     $cf = $carryForward[$name] ?? 0;
     $annualTotal = $data['annual'] + $cf;
 
-    $pdf->Cell(45, 8, $name, 1);
+    $pdf->Cell(60, 8, $name, 1);
     $pdf->Cell(
         35,
         8,
