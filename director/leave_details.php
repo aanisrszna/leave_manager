@@ -91,7 +91,7 @@ if (isset($_POST['update'])) {
             <p>Best regards,<br><strong>e-Leave Manager System</strong></p>
         ";
 
-        //send_email($staff_email, $subject, $message);
+        send_email($staff_email, $subject, $message);
 
         echo "<script>alert('Leave rejected Successfully');</script>";
     } elseif ($status === '1') { // Leave approved
@@ -126,7 +126,7 @@ if (isset($_POST['update'])) {
                 <p>Best regards,<br><strong>e-Leave Manager System</strong></p>
             ";
 
-            //send_email($staff_email, $subject, $message);
+            send_email($staff_email, $subject, $message);
 
             echo "<script>alert('Leave approved Successfully');</script>";
         } else {
