@@ -10,7 +10,7 @@
     <div class="main-container">
         <div class="pd-ltr-20">
         <div class="title pb-20">
-                <h2 class="h3 mb-0">Leave Entitlements</h2>
+                <h2 class="h3 mb-0">Leave Entitlement</h2>
             </div>
 
             <?php
