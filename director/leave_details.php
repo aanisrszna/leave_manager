@@ -93,7 +93,12 @@ if (isset($_POST['update'])) {
 
         send_email($staff_email, $subject, $message);
 
-        echo "<script>alert('Leave rejected Successfully');</script>";
+		echo "<script>
+			alert('Leave rejected successfully');
+			window.location.href = 'pending_leaves.php';
+		</script>";
+		exit;
+
     } elseif ($status === '1') { // Leave approved
         $result = mysqli_query($conn, "
             UPDATE tblleave AS tl
@@ -128,7 +133,12 @@ if (isset($_POST['update'])) {
 
             send_email($staff_email, $subject, $message);
 
-            echo "<script>alert('Leave approved Successfully');</script>";
+			echo "<script>
+				alert('Leave approved successfully');
+				window.location.href = 'pending_leaves.php';
+			</script>";
+			exit;
+
         } else {
             die(mysqli_error($conn));
         }
