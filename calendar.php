@@ -63,6 +63,7 @@ function getMalaysiaHolidays(int $year): array {
             '2026-03-23' => ['Hari Raya Aidilfitri Holiday ✨', 'holiday'], // National except Kedah → KL applies
 
             '2026-05-01' => ['Labour Day 💼', 'holiday'],
+            '2025-05-27' => ['Hari Raya Aidiladha 🐪', 'holiday'],
             '2026-05-31' => ['Wesak Day 🪷', 'holiday'],
 
             // 1 Jun has Agong’s Birthday + Wesak Holiday (KL applies)
