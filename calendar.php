@@ -57,7 +57,8 @@ function getMalaysiaHolidays(int $year): array {
             '2026-02-17' => ['Chinese New Year 🧧', 'holiday'],
             '2026-02-18' => ['Chinese New Year Holiday 🧧', 'holiday'],
 
-            '2026-03-07' => ['Nuzul Al-Quran 🌙', 'holiday'], // KL applies
+            '2026-03-07' => ['Nuzul Al-Quran 🌙', 'holiday'], // KL applies,
+            '2026-03-20' => ['Additional Holiday Hari Raya ✨', 'holiday']
             '2026-03-21' => ['Hari Raya Aidilfitri ✨', 'holiday'],
             '2026-03-22' => ['Hari Raya Aidilfitri Holiday ✨', 'holiday'],
             '2026-03-23' => ['Hari Raya Aidilfitri Holiday ✨', 'holiday'], // National except Kedah → KL applies
