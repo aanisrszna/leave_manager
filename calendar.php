@@ -68,7 +68,9 @@ function getMalaysiaHolidays(int $year): array {
             '2026-05-31' => ['Wesak Day 🪷', 'holiday'],
 
             // 1 Jun has Agong’s Birthday + Wesak Holiday (KL applies)
-            '2026-06-01' => ['Agong\'s Birthday 👑, Wesak Day Holiday 🪷', 'holiday'],
+            '2026-06-01' => ['Agong\'s Birthday 👑', 'holiday'],
+            '2026-06-02' => ['Wesak Day Holiday 🪷', 'holiday'],
+
 
             '2026-06-17' => ['Awal Muharram 🕋', 'holiday'],
             '2026-08-25' => ['Prophet Muhammad\'s Birthday 🕌', 'holiday'],
